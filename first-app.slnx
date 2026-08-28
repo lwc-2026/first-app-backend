@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="DataAccess/DataAccess.csproj" />
+  <Project Path="Database/Database.csproj" />
   <Project Path="Tests/Tests.csproj" />
   <Project Path="WebApi/WebApi.csproj" />
 </Solution>
