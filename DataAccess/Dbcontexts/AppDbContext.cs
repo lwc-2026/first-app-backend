@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataAccess.Dbcontexts
+namespace DataAccess.Dbcontexts;
+
+public class AppDbContext(DbContextOptions options) : DbContext(options)
 {
-    internal class AppDbContext(DbContextOptions options): DbContext(options)
-    {
-        public DbSet<AppUser> Users { get; set; }
-    }
+    public DbSet<AppUser> Users { get; set; }
 }
