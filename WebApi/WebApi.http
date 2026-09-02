@@ -1,6 +1,17 @@
-@WebApi_HostAddress = http://localhost:5023
+@WebApi_HostAddress = http://localhost:8080
 
 GET {{WebApi_HostAddress}}/weatherforecast/
 Accept: application/json
+
+###
+
+POST {{WebApi_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "id":"123"
+  "Username":"ericsong",
+  "Email":"eric.kw.song@wynnpalace.com"
+}
 
 ###
