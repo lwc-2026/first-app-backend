@@ -3,7 +3,7 @@ using Tests.Factories;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Tests.Controllers;
+namespace ApiTests.Controllers;
 
 public class UsersControllerApiTest: IClassFixture<TestDbFactory>
 {

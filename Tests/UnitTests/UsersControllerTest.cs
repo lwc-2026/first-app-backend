@@ -1,10 +1,8 @@
 using DataAccess.Dbcontexts;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Controllers;
-using DataAccess.Entities;
 using Tests.Factories;
 
-namespace Tests.Controllers;
+namespace Tests.UnitTests;
 
 public class UsersControllerTest : IClassFixture<TestDbFactory>
 {
