@@ -10,19 +10,12 @@ namespace Tests.Factories;
 
 public class TestDbFactory : WebApplicationFactory<Program>
 {
-    private SqliteConnection connection;
-
-    public AppDbContext context { get; }
+    private readonly SqliteConnection connection;
 
     public TestDbFactory()
     {
         connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(connection)
-                .Options;
-        context = new AppDbContext(options);
-        context.Database.Migrate();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -33,11 +26,19 @@ public class TestDbFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlite(connection));
 
-            using var scope = services.BuildServiceProvider().CreateScope();
+            using var provider = services.BuildServiceProvider();
+            using var scope = provider.CreateScope();
 
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            db.Database.Migrate();
+            db.Database.EnsureDeleted();
+            db.Database.EnsureCreated();
         });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        connection.Dispose();
+        base.Dispose(disposing);
     }
 }
