@@ -1,72 +1,49 @@
 using DataAccess.Dbcontexts;
-using Microsoft.EntityFrameworkCore;
-using WebApi.Controllers;
 using DataAccess.Entities;
 using Tests.Factories;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore.Sqlite;
+using System.Net;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Tests.Controllers;
 
-public class UsersControllerApiTest: IClassFixture<WebApplicationFactory<Program>>
+public class UsersControllerApiTest: IClassFixture<TestDbFactory>
 {
-    private AppDbContext context;
-    private UsersController usersController;
+    private TestDbFactory factory;
     private HttpClient client;
 
-    public UsersControllerApiTest(WebApplicationFactory<Program> factory)
+    public UsersControllerApiTest(TestDbFactory _factory)
     {
-        // var connection = new SqliteConnection("Data Source=:memory:");
-        // connection.Open();
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        context = new AppDbContext(options);
-        usersController = new UsersController(context);
+        factory = _factory;
         client = factory.CreateClient();
-    }
-
-    [Fact]
-    public void TestGetUsers()
-    {
-        
-    }
-
-    [Fact]
-    public void TestGetUser()
-    {
-        
-    }
-
-    [Fact]
-    public void TestCreateUser()
-    {
-        
-    }
-
-    [Fact]
-    public void TestUpdateUser()
-    {
-        Assert.True(true);
     }
 
     [Fact]
     public async Task TestDeleteUser()
     {
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var user = AppUserFactory.Create();
         context.Users.Add(user);
-        context.SaveChanges();
-        Assert.NotEmpty(context.Users);
+        await context.SaveChangesAsync();
+        Assert.Single(context.Users);
 
-        // var response = await client.DeleteAsync($"/api/users/{user.Id}");
+        var response = await client.DeleteAsync($"/api/users/{user.Id}");
 
-        // await usersController.DeleteUser(user.Id);
+        Console.WriteLine("response.StatusCode {0}", response.StatusCode);
 
-        // context.Users.Remove(user);
-        // context.SaveChanges();
-        // Console.WriteLine(response.StatusCode);
-        // Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        // Assert.Empty(context.Users);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        // using var verifyScope = factory.Services.CreateAsyncScope();
+        // var verifyDb = verifyScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        // var deleted = await verifyDb.Users.FindAsync(user.Id);
+
+        context.ChangeTracker.Clear();
+        var deleted = await context.Users.FindAsync(user.Id);
+        Console.WriteLine("Users count {0}", await context.Users.CountAsync());
+
+        Assert.Null(deleted);
     }
 
 }

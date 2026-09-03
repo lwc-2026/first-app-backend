@@ -6,43 +6,17 @@ using Tests.Factories;
 
 namespace Tests.Controllers;
 
-public class UsersControllerTest
+public class UsersControllerTest : IClassFixture<TestDbFactory>
 {
+    private TestDbFactory factory;
     private AppDbContext context;
     private UsersController usersController;
 
-    public UsersControllerTest()
+    public UsersControllerTest(TestDbFactory testDbFactory)
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        context = new AppDbContext(options);
-        context.Database.EnsureCreated();
+        factory = testDbFactory;
+        context = factory.context;
         usersController = new UsersController(context);
-    }
-
-    [Fact]
-    public void TestGetUsers()
-    {
-        
-    }
-
-    [Fact]
-    public void TestGetUser()
-    {
-        
-    }
-
-    [Fact]
-    public void TestCreateUser()
-    {
-        
-    }
-
-    [Fact]
-    public void TestUpdateUser()
-    {
-        Assert.True(true);
     }
 
     [Fact]
