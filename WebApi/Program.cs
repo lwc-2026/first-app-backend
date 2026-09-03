@@ -10,10 +10,14 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+    // options.UseSqlite(
+    //     builder.Configuration.GetConnectionString("SqliteConnection")
+    // );
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SqlServerConnection")
     );
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -23,6 +27,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
 }
+
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
 
 app.UseHttpsRedirection();
 
