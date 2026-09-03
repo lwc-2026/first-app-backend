@@ -12,7 +12,7 @@ public class TestDbFactory : WebApplicationFactory<Program>
 {
     private SqliteConnection connection;
 
-    private AppDbContext context { get; }
+    public AppDbContext context { get; }
 
     public TestDbFactory()
     {
