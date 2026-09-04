@@ -1,5 +1,7 @@
 using DataAccess.Dbcontexts;
 using Microsoft.AspNetCore.HttpOverrides;
+using Service.Interfaces;
+using Service.Implementation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 var app = builder.Build();
 
