@@ -22,7 +22,9 @@ public class TestDbFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
+            services.RemoveAll<AppDbContext>();
             services.RemoveAll<DbContextOptions<AppDbContext>>();
+            services.RemoveAll<IDbContextFactory<AppDbContext>>();
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlite(connection));
 
