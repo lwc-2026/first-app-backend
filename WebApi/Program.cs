@@ -1,4 +1,5 @@
 using DataAccess.Dbcontexts;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +19,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 builder.Services.AddCors();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -41,5 +50,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
