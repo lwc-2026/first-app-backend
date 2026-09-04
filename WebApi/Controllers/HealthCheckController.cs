@@ -1,16 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataAccess.Dbcontexts;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("/api/healthcheck")]
-    public class HealthCheckController : Controller
+    public class HealthCheckController(AppDbContext context) : Controller
     {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> HealthCheck()
         {
-            return await Task.FromResult(Ok("Healthy"));
+            var result = context.HealthChecks
+                .FromSql($"EXEC HEALTHCHECK")
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            return await Task.FromResult(Ok(result));
         }
     }
 }
