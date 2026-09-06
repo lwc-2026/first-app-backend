@@ -9,13 +9,15 @@ public static class AppUserFactory
     public static AppUser Create(
         string? id = null,
         string? username = null,
-        string? email = null)
+        string? email = null,
+        string? password = null)
     {
         return new AppUser
         {
             Id = id ?? Guid.NewGuid().ToString(),
             Username = username ?? faker.Internet.UserName(),
-            Email = email ?? faker.Internet.Email()
+            Email = email ?? faker.Internet.Email(),
+            Password = password ?? faker.Internet.Password()
         };
     }
 }

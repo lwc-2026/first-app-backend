@@ -30,6 +30,7 @@ namespace Service.Implementation
                 Id = Guid.NewGuid().ToString(),
                 Username = request.Username,
                 Email = request.Email,
+                Password = request.Password,
             };
 
             _context.Users.Add(user);
