@@ -18,13 +18,14 @@ public class UserFactory : Factory
         );
     }
     
-    public AppUser[] CreateMany(int count)
+    public List<AppUser> CreateMany(int count)
     {
-        var users = new AppUser[count];
+        List<AppUser> userList = new List<AppUser>();
         for (int i = 0; i < count; i++)
         {
-            users[i] = Create();
+            var user = Create();
+            userList.Add(user);
         }
-        return users;
+        return userList;
     }
 }

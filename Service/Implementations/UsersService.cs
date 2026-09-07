@@ -6,6 +6,7 @@ using Service.Requests;
 using DataAccess.Entities;
 using DataAccess.Dbcontexts;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Service.Implementations
 {
@@ -21,6 +22,11 @@ namespace Service.Implementations
         public async Task<AppUser?> GetUserAsync(string id)
         {
             return await _context.Users.FindAsync(id);
+        }
+
+        public async Task<List<AppUser>> GetUsersList()
+        {
+            return await _context.Users.ToListAsync();
         }
 
         public async Task CreateUserAsync(CreateUserRequest request)

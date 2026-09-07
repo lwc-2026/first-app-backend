@@ -6,6 +6,7 @@ namespace Service.Interfaces
 {
     public interface IUsersService
     {
+        Task<List<AppUser>> GetUsersList();
         Task<AppUser?> GetUserAsync(string id);
         Task CreateUserAsync(CreateUserRequest request);
     }

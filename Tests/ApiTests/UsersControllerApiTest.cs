@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 
 namespace Tests.ApiTests;
 
-public class UsersControllerApiTest: TestBase, IClassFixture<TestDbFactory>
+public class UsersControllerApiTest: IClassFixture<TestDbFactory>
 {
 
 }
