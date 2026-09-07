@@ -7,7 +7,7 @@ using DataAccess.Entities;
 using DataAccess.Dbcontexts;
 using System.Threading.Tasks;
 
-namespace Service.Implementation
+namespace Service.Implementations
 {
     public class UsersService : IUsersService
     {
