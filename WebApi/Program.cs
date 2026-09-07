@@ -1,7 +1,7 @@
 using DataAccess.Dbcontexts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Service.Interfaces;
-using Service.Implementation;
+using Service.Implementations;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +28,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 
 var app = builder.Build();
 

@@ -1,23 +1,27 @@
 ﻿using DataAccess.Dbcontexts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Service.Interfaces;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("/api/healthcheck")]
-    public class HealthCheckController(AppDbContext context) : Controller
+    public class HealthCheckController(AppDbContext context, IHealthCheckService healthCheckService) : Controller
     {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> HealthCheck()
         {
-            var result = context.HealthChecks
-                .FromSql($"EXEC HEALTHCHECK")
-                .AsEnumerable()
-                .FirstOrDefault();
-
-            return await Task.FromResult(Ok(result));
+            var result = await healthCheckService.HealthCheck(context);
+            if (result != null && result.IsHealthy())
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, result);
+            }
         }
     }
 }
