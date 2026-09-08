@@ -1,10 +1,8 @@
-﻿using System.Text.Json;
-using DataAccess.Dbcontexts;
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Service.Implementations;
 using Service.Interfaces;
+using Service.Requests.Builders;
+using WebApi.Requests;
 
 namespace WebApi.Controllers
 {
@@ -25,12 +23,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AppUser>?> CreateUser(AppUser user)
+        public async Task<ActionResult<AppUser>?> CreateUser(CreateUserServiceRequest request)
         {
-            //context.Users.Add(user);
-            //await context.SaveChangesAsync();
-            //return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            return NoContent();
+            throw new NotImplementedException();
         }
 
         [HttpPut("{id}")]

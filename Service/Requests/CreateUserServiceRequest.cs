@@ -1,6 +1,6 @@
 namespace Service.Requests
 {
-    public class CreateUserRequest
+    public class CreateUserServiceRequest
     {
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

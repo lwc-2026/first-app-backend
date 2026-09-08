@@ -29,7 +29,7 @@ namespace Service.Implementations
             return await _context.Users.ToListAsync();
         }
 
-        public async Task CreateUserAsync(CreateUserRequest request)
+        public async Task CreateUserAsync(CreateUserServiceRequest request)
         {
             var user = new AppUser
             {

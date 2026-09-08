@@ -9,6 +9,6 @@ namespace Service.Interfaces
         Task<List<AppUser>> GetUsersList();
         Task<AppUser?> GetUserById(string id);
         Task<AppUser?> GetUserAsync(string id);
-        Task CreateUserAsync(CreateUserRequest request);
+        Task CreateUserAsync(CreateUserServiceRequest request);
     }
 }
