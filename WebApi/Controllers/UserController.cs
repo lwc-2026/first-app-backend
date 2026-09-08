@@ -13,18 +13,15 @@ namespace WebApi.Controllers
     public class UsersController(IUsersService usersService) : ControllerBase
     {
         [HttpGet]
-        public ActionResult<IReadOnlyCollection<AppUser>> GetUsers()
+        public async Task<ActionResult<IReadOnlyCollection<AppUser>>> GetUsers()
         {
-            return Ok(usersService.GetUsersList());
+            return Ok(await usersService.GetUsersList());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<AppUser>? GetUser(string id)
+        public async Task<ActionResult<AppUser>?> GetUser(string id)
         {
-            //var user = context.Users.Find(id);
-            //if (user == null) return NotFound();
-            //return user;
-            return NoContent();
+            return Ok(await usersService.GetUserById(id));
         }
 
         [HttpPost]

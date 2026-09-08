@@ -43,5 +43,10 @@ namespace Service.Implementations
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<AppUser?> GetUserById(string id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
     }
 }
