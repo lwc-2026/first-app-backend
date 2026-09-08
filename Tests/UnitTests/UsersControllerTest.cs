@@ -23,12 +23,12 @@ public class UsersControllerTest: UnitTestBase
         List<AppUser> userList = UserFactory.CreateMany(10);
         Task<List<AppUser>> result = Task.FromResult(userList);
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
-        mockUserService.Setup(x => x.GetUsersList())
-            .ReturnsAsync(userList);
+        mockUserService.Setup(x => x.GetUsersList()).ReturnsAsync(userList).Verifiable();
 
         var controller = new UsersController(mockUserService.Object);
         var actionResult = await controller.GetUsers();
         Assert.IsType<OkObjectResult>(actionResult.Result);
+        mockUserService.Verify(x => x.GetUsersList(), Times.Exactly(1));
     }
 
     [Fact]
@@ -36,11 +36,12 @@ public class UsersControllerTest: UnitTestBase
     {
         AppUser user = UserFactory.Create();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
-        mockUserService.Setup(x => x.GetUserById(user.Id))
-            .ReturnsAsync(user);
+        mockUserService.Setup(x => x.GetUserById(user.Id)).ReturnsAsync(user).Verifiable();
 
         var controller = new UsersController(mockUserService.Object);
         var actionResult = await controller.GetUser(user.Id);
+
+        mockUserService.Verify(x => x.GetUserById(user.Id), Times.Exactly(1));
         Assert.IsType<OkObjectResult>(actionResult.Result);
     }
 }
