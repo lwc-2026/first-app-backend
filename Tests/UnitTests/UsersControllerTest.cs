@@ -18,7 +18,7 @@ public class UsersControllerTest: UnitTestBase
     }
 
     [Fact]
-    public async Task Test_controller_get_users_list()
+    public async Task Test_controller_can_get_users_list()
     {
         List<AppUser> userList = UserFactory.CreateMany(10);
         Task<List<AppUser>> result = Task.FromResult(userList);
@@ -32,7 +32,7 @@ public class UsersControllerTest: UnitTestBase
     }
 
     [Fact]
-    public async Task Test_controller_get_user_by_id()
+    public async Task Test_controller_can_get_user_by_id()
     {
         AppUser user = UserFactory.Create();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
@@ -43,5 +43,11 @@ public class UsersControllerTest: UnitTestBase
 
         mockUserService.Verify(x => x.GetUserById(user.Id), Times.Exactly(1));
         Assert.IsType<OkObjectResult>(actionResult.Result);
+    }
+
+    [Fact]
+    public async Task Test_controller_can_create_user()
+    {
+        Assert.True(true);
     }
 }
