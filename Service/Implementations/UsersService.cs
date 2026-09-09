@@ -18,10 +18,6 @@ namespace Service.Implementations
         {
             this.context = context;
         }
-        public async Task<AppUser?> GetUserAsync(string id)
-        {
-            return await context.Users.FindAsync(id);
-        }
 
         public async Task<List<AppUser>> GetUsersList()
         {
