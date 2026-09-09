@@ -1,8 +1,19 @@
-using Tests.Factories;
+using Tests.Fixtures;
 
 namespace Tests.IntegrationTests;
 
-public abstract class IntegrationTestBase(TestDbFactory factory) : IClassFixture<TestDbFactory>
+[Collection("Database")]
+public abstract class IntegrationTestBase: IAsyncLifetime
 {
-    protected readonly HttpClient Client = factory.CreateClient();
+    protected readonly DatabaseFixture Fixture;
+    protected HttpClient Client => Fixture.Factory.CreateClient();
+
+    protected IntegrationTestBase(DatabaseFixture fixture)
+    {
+        this.Fixture = fixture;
+    }
+
+    public virtual Task InitializeAsync() => Task.CompletedTask;
+
+    public virtual Task DisposeAsync() => Fixture.ResetDatabaseAsync();
 }

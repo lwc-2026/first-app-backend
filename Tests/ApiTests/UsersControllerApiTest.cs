@@ -1,12 +1,12 @@
-using DataAccess.Dbcontexts;
-using Tests.Factories;
-using System.Net;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Json;
+using Tests.Fixtures;
 
 namespace Tests.ApiTests;
 
-public class UsersControllerApiTest: IClassFixture<TestDbFactory>
+public class UsersControllerApiTest: IClassFixture<TestWebApplicationFactory>
 {
+    [Fact]
+    public void Test_can_connect_database()
+    {
 
+    }
 }
