@@ -17,19 +17,19 @@ namespace WebApi.Controllers
             this.usersService = usersService;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "Users.Index")]
         public async Task<ActionResult<IReadOnlyCollection<AppUser>>> GetUsers()
         {
             return Ok(await usersService.GetUsersList());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "Users.Show")]
         public async Task<ActionResult<AppUser>?> GetUser([FromRoute] string id)
         {
             return Ok(await usersService.GetUserById(id));
         }   
 
-        [HttpPost]
+        [HttpPost(Name = "Users.Store")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserHttpRequest request)
         {
             CreateUserServiceRequest serviceRequest = new(username: request.Username, email: request.Email,password: request.Password);
@@ -37,7 +37,7 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = "Users.Update")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserHttpRequest request, [FromRoute] string id)
         {
             UpdateUserServiceRequest serviceRequest = new UpdateUserServiceRequest()
@@ -51,7 +51,7 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "Users.Delete")]
         public async Task<IActionResult> DeleteUser([FromRoute] string id)
         {
             DeleteUserServiceRequest serviceRequest = new(id);
