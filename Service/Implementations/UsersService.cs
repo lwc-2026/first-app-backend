@@ -12,26 +12,25 @@ namespace Service.Implementations
 {
     public class UsersService : IUsersService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext context;
 
         public UsersService(AppDbContext context)
         {
-            _context = context;
+            this.context = context;
         }
-
-        public async Task<AppUser?> GetUserAsync(string id)
+        public async Task<AppUser> GetUserAsync(string id)
         {
-            return await _context.Users.FindAsync(id);
+            return await context.Users.FindAsync(id);
         }
 
         public async Task<List<AppUser>> GetUsersList()
         {
-            return await _context.Users.ToListAsync();
+            return await context.Users.ToListAsync();
         }
 
-        public async Task CreateUserAsync(CreateUserServiceRequest request)
+        public async Task<AppUser> CreateUserAsync(CreateUserServiceRequest request)
         {
-            var user = new AppUser
+            AppUser user = new AppUser
             {
                 Id = Guid.NewGuid().ToString(),
                 Username = request.Username,
@@ -39,14 +38,61 @@ namespace Service.Implementations
                 Password = request.Password,
             };
 
-            _context.Users.Add(user);
+            context.Users.Add(user);
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
+            return await GetUserAsync(user.Id);
         }
 
-        public async Task<AppUser?> GetUserById(string id)
+        public async Task<AppUser> GetUserById(string id)
         {
-            return await _context.Users.FindAsync(id);
+            try
+            {
+                return await context.Users.FindAsync(id);
+            }
+            catch (Exception)
+            {
+                throw new Exception("User not found");
+            }
+            
+        }
+
+        public async Task<AppUser> UpdateUserAsync(UpdateUserServiceRequest request)
+        {
+            
+            if(request.Id != null)
+            {
+                AppUser user = await context.Users.FindAsync(request.Id);
+
+                if (user != null)
+                {
+                    if (request.Email != null) user.Email = request.Email;
+                    if (request.Username != null) user.Username = request.Username;
+                    if (request.Password != null) user.Password = request.Password;
+                    context.Users.Update(user);
+                    await context.SaveChangesAsync();
+                    return await context.Users.FindAsync(user.Id);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+        }
+
+        public async Task DeleteUserAsync(DeleteUserServiceRequest request)
+        {
+            var user = await context.Users.FindAsync(request.Id);
+            if (user != null)
+            {
+                context.Users.Remove(user);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }
