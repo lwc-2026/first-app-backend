@@ -1,10 +1,11 @@
-using WebApi.Controllers;
-using Tests.Factories;
-using Moq;
-using Service.Interfaces;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using Moq;
+using Service.Interfaces;
+using Service.Requests;
+using Tests.Factories;
+using WebApi.Controllers;
+using WebApi.Requests;
 
 namespace Tests.UnitTests;
 
@@ -48,6 +49,80 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_create_user()
     {
-        Assert.True(true);
+        AppUser user = UserFactory.Create();
+        CreateUserHttpRequest httpRequest = new CreateUserHttpRequest
+        {
+            Username = user.Username,
+            Email = user.Email,
+            Password = user.Password
+        };
+
+        Mock<IUsersService> mockUserService = new Mock<IUsersService>();
+        mockUserService.Setup(x => x.CreateUserAsync(It.IsAny<CreateUserServiceRequest>()))
+            .ReturnsAsync(user)
+            .Verifiable();
+        
+        UsersController controller = new UsersController(mockUserService.Object);
+        ActionResult<AppUser> actionResult = await controller.CreateUser(httpRequest);
+
+        mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserServiceRequest>(request => 
+             request.Username == user.Username &&
+             request.Email == user.Email &&
+             request.Password == user.Password)), Times.Exactly(1));
+
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        AppUser actualUser = Assert.IsType<AppUser>(okResult.Value);
+        Assert.Equal(user.Username, actualUser.Username);
+        Assert.Equal(user.Email, actualUser.Email);
+        Assert.Equal(user.Password, actualUser.Password);
+
+    }
+
+    [Fact]
+    public async Task Test_controller_can_update_user()
+    {
+        AppUser user = UserFactory.Create();
+        AppUser updatedUser = UserFactory.Create();
+        Mock<IUsersService> mockUserService = new Mock<IUsersService>();
+        mockUserService.Setup(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
+            request.Id == updatedUser.Id &&
+            request.Username == updatedUser.Username &&
+            request.Email == updatedUser.Email &&
+            request.Password == updatedUser.Password
+            )))
+            .ReturnsAsync(user)
+            .Verifiable();
+
+        UsersController controller = new UsersController(mockUserService.Object);
+        IActionResult actionResult = await controller.UpdateUser(new UpdateUserHttpRequest
+        {
+            Username = updatedUser.Username,
+            Email = updatedUser.Email,
+            Password = updatedUser.Password
+        }, user.Id);
+
+        mockUserService.Verify(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
+            request.Id == user.Id &&
+            request.Username == updatedUser.Username &&
+            request.Email == updatedUser.Email &&
+            request.Password == updatedUser.Password
+            )), Times.Exactly(1));
+        Assert.IsType<NoContentResult>(actionResult);
+    }
+
+    [Fact]
+    public async Task Test_controller_can_delete_user()
+    {
+        AppUser user = UserFactory.Create();
+        Mock<IUsersService> mockUserService = new Mock<IUsersService>();
+        mockUserService.Setup(x => x.DeleteUserAsync(It.Is<DeleteUserServiceRequest>(request => request.Id == user.Id)))
+            .Returns(Task.CompletedTask)
+            .Verifiable();
+
+        UsersController controller = new UsersController(mockUserService.Object);
+        IActionResult actionResult = await controller.DeleteUser(user.Id);
+
+        mockUserService.Verify(x => x.DeleteUserAsync(It.Is<DeleteUserServiceRequest>(request => request.Id == user.Id)), Times.Exactly(1));
+        Assert.IsType<NoContentResult>(actionResult);
     }
 }

@@ -1,15 +1,22 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
-using Service.Requests.Builders;
+using Service.Requests;
 using WebApi.Requests;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    public class UsersController(IUsersService usersService) : ControllerBase
+    public class UsersController : ControllerBase
     {
+        private readonly IUsersService usersService;
+
+        public UsersController(IUsersService usersService)
+        {
+            this.usersService = usersService;
+        }
+
         [HttpGet]
         public async Task<ActionResult<IReadOnlyCollection<AppUser>>> GetUsers()
         {
@@ -17,46 +24,37 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>?> GetUser(string id)
+        public async Task<ActionResult<AppUser>?> GetUser([FromRoute] string id)
         {
             return Ok(await usersService.GetUserById(id));
-        }
+        }   
 
         [HttpPost]
-        public async Task<ActionResult<AppUser>?> CreateUser(CreateUserServiceRequest request)
+        public async Task<ActionResult<AppUser>> CreateUser([FromBody] CreateUserHttpRequest request)
         {
-            throw new NotImplementedException();
+            CreateUserServiceRequest serviceRequest = new(username: request.Username, email: request.Email,password: request.Password);
+            return Ok(await usersService.CreateUserAsync(serviceRequest));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, AppUser user)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserHttpRequest request, [FromRoute] string id)
         {
-            //if (id != user.Id)
-            //{
-            //    return BadRequest();
-            //}
-
-            //context.Entry(user).State = EntityState.Modified;
-
-            //try
-            //{
-            //    await context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-
-            //}
-
+            UpdateUserServiceRequest serviceRequest = new UpdateUserServiceRequest()
+            {
+                Id = id,
+                Username = request.Username,
+                Email = request.Email,
+                Password = request.Password
+            };
+            await usersService.UpdateUserAsync(serviceRequest);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser([FromRoute] string id)
         {
-            //AppUser? user = await context.Users.FindAsync(id);
-            //if(user == null) return NotFound();
-            //context.Users.Remove(user);
-            //await context.SaveChangesAsync();
+            DeleteUserServiceRequest serviceRequest = new(id);
+            await usersService.DeleteUserAsync(serviceRequest);
             return NoContent();
         }
     }
