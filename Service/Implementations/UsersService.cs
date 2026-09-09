@@ -18,7 +18,7 @@ namespace Service.Implementations
         {
             this.context = context;
         }
-        public async Task<AppUser> GetUserAsync(string id)
+        public async Task<AppUser?> GetUserAsync(string id)
         {
             return await context.Users.FindAsync(id);
         }
@@ -41,48 +41,25 @@ namespace Service.Implementations
             context.Users.Add(user);
 
             await context.SaveChangesAsync();
-            return await GetUserAsync(user.Id);
+            return user;
         }
 
         public async Task<AppUser> GetUserById(string id)
         {
-            try
-            {
-                return await context.Users.FindAsync(id);
-            }
-            catch (Exception)
-            {
-                throw new Exception("User not found");
-            }
-            
+            AppUser? user = await context.Users.FindAsync(id) ?? throw new Exception("User not found");
+            return user;
         }
 
         public async Task<AppUser> UpdateUserAsync(UpdateUserServiceRequest request)
         {
-            
-            if(request.Id != null)
-            {
-                AppUser user = await context.Users.FindAsync(request.Id);
+            AppUser? user = await GetUserById(request.Id);
 
-                if (user != null)
-                {
-                    if (request.Email != null) user.Email = request.Email;
-                    if (request.Username != null) user.Username = request.Username;
-                    if (request.Password != null) user.Password = request.Password;
-                    context.Users.Update(user);
-                    await context.SaveChangesAsync();
-                    return await context.Users.FindAsync(user.Id);
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-
+            if (request.Email != null) user.Email = request.Email;
+            if (request.Username != null) user.Username = request.Username;
+            if (request.Password != null) user.Password = request.Password;
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
+            return await GetUserById(request.Id);
         }
 
         public async Task DeleteUserAsync(DeleteUserServiceRequest request)

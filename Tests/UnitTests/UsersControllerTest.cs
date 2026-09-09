@@ -41,10 +41,10 @@ public class UsersControllerTest: UnitTestBase
         mockUserService.Setup(x => x.GetUserById(user.Id)).ReturnsAsync(user).Verifiable();
 
         var controller = new UsersController(mockUserService.Object);
-        var actionResult = await controller.GetUser(user.Id);
+        ActionResult<AppUser>? actionResult = await controller.GetUser(user.Id);
 
         mockUserService.Verify(x => x.GetUserById(user.Id), Times.Exactly(1));
-        Assert.IsType<OkObjectResult>(actionResult.Result);
+        Assert.IsType<OkObjectResult>(actionResult?.Result);
     }
 
     [Fact]

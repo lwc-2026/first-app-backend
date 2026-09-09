@@ -8,7 +8,6 @@ namespace Service.Interfaces
     {
         Task<List<AppUser>> GetUsersList();
         Task<AppUser> GetUserById(string id);
-        Task<AppUser> GetUserAsync(string id);
         Task<AppUser> CreateUserAsync(CreateUserServiceRequest request);
         Task<AppUser> UpdateUserAsync(UpdateUserServiceRequest request);
         Task DeleteUserAsync(DeleteUserServiceRequest request);
