@@ -1,3 +1,4 @@
+using System.Text.Json;
 using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -63,19 +64,18 @@ public class UsersControllerTest: UnitTestBase
             .Verifiable();
         
         UsersController controller = new UsersController(mockUserService.Object);
-        ActionResult<AppUser> actionResult = await controller.CreateUser(httpRequest);
+        IActionResult actionResult = await controller.CreateUser(httpRequest);
 
         mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserServiceRequest>(request => 
              request.Username == user.Username &&
              request.Email == user.Email &&
              request.Password == user.Password)), Times.Exactly(1));
 
-        OkObjectResult okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        AppUser actualUser = Assert.IsType<AppUser>(okResult.Value);
+        CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(actionResult);
+        AppUser actualUser = Assert.IsType<AppUser>(createdResult.Value);
         Assert.Equal(user.Username, actualUser.Username);
         Assert.Equal(user.Email, actualUser.Email);
         Assert.Equal(user.Password, actualUser.Password);
-
     }
 
     [Fact]

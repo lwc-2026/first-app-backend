@@ -30,10 +30,11 @@ namespace WebApi.Controllers
         }   
 
         [HttpPost]
-        public async Task<ActionResult<AppUser>> CreateUser([FromBody] CreateUserHttpRequest request)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserHttpRequest request)
         {
             CreateUserServiceRequest serviceRequest = new(username: request.Username, email: request.Email,password: request.Password);
-            return Ok(await usersService.CreateUserAsync(serviceRequest));
+            AppUser user = await usersService.CreateUserAsync(serviceRequest);
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
         [HttpPut("{id}")]
