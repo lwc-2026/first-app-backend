@@ -1,24 +1,39 @@
+using DataAccess.Dbcontexts;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Tests.Fixtures;
-using Xunit;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace Tests.IntegrationTests;
 
-public class MigrationTest : IntegrationTestBase
+public class MigrationTest : IClassFixture<DatabaseFixture>
 {
-    public MigrationTest(DatabaseFixture fixture) : base(fixture)
+    private readonly DatabaseFixture _fixture;
+
+    public MigrationTest(DatabaseFixture fixture)
     {
+        _fixture = fixture;
     }
 
     [Fact]
     public async Task TestDatabaseMigration()
     {
-        // Arrange
-        var response = await Client.GetAsync("/api/healthcheck");
-        Console.WriteLine(JsonSerializer.Serialize(response));
-        // Assert
-        response.EnsureSuccessStatusCode();
+        using var scope = _fixture.Services.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var canConnect = await context.Database.CanConnectAsync();
+
+        canConnect.Should().BeTrue();
+
+        Console.WriteLine(context.Database.GetConnectionString());
+
+        var migrations = await context.Database.GetAppliedMigrationsAsync();
+
+        migrations.Should().NotBeEmpty();
+
+        var pending = await context.Database.GetPendingMigrationsAsync();
+
+        pending.Should().BeEmpty();
     }
 }
