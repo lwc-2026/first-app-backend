@@ -1,37 +1,48 @@
-using Microsoft.Data.SqlClient;
+using DataAccess.Dbcontexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
-using DataAccess.Dbcontexts;
+using System.Data.Common;
 
 namespace Tests.Fixtures;
 
 public class DatabaseFixture : IAsyncLifetime
 {
-    private SqlConnection _connection = null!;
+    private DbConnection _connection = null!;
     private Respawner _respawner = null!;
+    private readonly TestWebApplicationFactory _factory;
+    public IServiceProvider Services => _factory.Services;
 
-    public TestWebApplicationFactory Factory { get; }
-
+    // constructor
     public DatabaseFixture()
     {
-        Factory = new TestWebApplicationFactory();
+        _factory = new TestWebApplicationFactory();
     }
 
     public async Task InitializeAsync()
     {
-        using var scope = Factory.Services.CreateScope();
+        using var scope = Services.CreateScope();
 
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.MigrateAsync();
+        await context.Database.MigrateAsync();
 
-        _connection = new SqlConnection("Server=sql1-test,1433;Database=firstapp;User Id=sa;Password=P@ssw0rd123;Encrypt=True;TrustServerCertificate=True;");
+        _connection = context.Database.GetDbConnection();
 
         await _connection.OpenAsync();
 
-        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions{ DbAdapter = DbAdapter.SqlServer });
+        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions{ 
+            DbAdapter = DbAdapter.SqlServer,
+            //TablesToIgnore = 
+            //[
+            //    "__EFMigrationsHistory"
+            //]
+        });
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _connection.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
@@ -39,8 +50,4 @@ public class DatabaseFixture : IAsyncLifetime
         await _respawner.ResetAsync(_connection);
     }
 
-    public async Task DisposeAsync()
-    {
-        await _connection.DisposeAsync();
-    }
 }
