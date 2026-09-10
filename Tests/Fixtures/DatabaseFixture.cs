@@ -25,18 +25,18 @@ public class DatabaseFixture : IAsyncLifetime
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await context.Database.MigrateAsync();
-
         _connection = context.Database.GetDbConnection();
 
         await _connection.OpenAsync();
 
+        await context.Database.MigrateAsync();
+
         _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions{ 
             DbAdapter = DbAdapter.SqlServer,
-            //TablesToIgnore = 
-            //[
-            //    "__EFMigrationsHistory"
-            //]
+            TablesToIgnore =
+            [
+                "__EFMigrationsHistory"
+            ]
         });
     }
 
