@@ -3,17 +3,24 @@ using Tests.Fixtures;
 namespace Tests.IntegrationTests;
 
 [Collection("Database")]
-public abstract class IntegrationTestBase: IAsyncLifetime
+public abstract class IntegrationTestBase: IClassFixture<TestWebApplicationFactory>, IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
-    protected readonly DatabaseFixture Fixture;
-    protected HttpClient Client => Fixture.Factory.CreateClient();
+    protected readonly DatabaseFixture _fixture;
+    protected readonly HttpClient _client;
 
-    protected IntegrationTestBase(DatabaseFixture fixture)
+    protected IntegrationTestBase(TestWebApplicationFactory factory, DatabaseFixture fixture)
     {
-        this.Fixture = fixture;
+        _fixture = fixture;
+        _client = factory.CreateClient();
     }
 
-    public virtual Task InitializeAsync() => Task.CompletedTask;
+    public Task InitializeAsync()
+    {
+        throw new NotImplementedException();
+    }
 
-    public virtual Task DisposeAsync() => Fixture.ResetDatabaseAsync();
+    public Task DisposeAsync()
+    {
+        throw new NotImplementedException();
+    }
 }
