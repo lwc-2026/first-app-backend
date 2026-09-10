@@ -23,8 +23,8 @@ namespace DataAccess.Migrations
                     AT TIME ZONE 'UTC'
                     AT TIME ZONE 'China Standard Time'
                     AS DATETIME2
-                ) AS MacauTime;
-                SELECT 1 AS HealthCheckStatus;
+                ) AS MacauTime,
+                1 AS HealthCheckStatus; -- 1 indicates healthy
             END
             """);
         }
