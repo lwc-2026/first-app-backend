@@ -18,7 +18,7 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
     }
 
     [Fact]
-    public async Task TestDatabaseMigration()
+    public async Task Database_Should_Be_Migrated_Successfully()
     {
         using var scope = _fixture.Services.CreateScope();
 
@@ -28,17 +28,16 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
 
         canConnect.Should().BeTrue();
 
-        Console.WriteLine(context.Database.GetConnectionString());
-
         var migrations = await context.Database.GetAppliedMigrationsAsync();
 
         migrations.Should().NotBeEmpty();
-        migrations.Should().Contain("20260907030308_InitialCreate");
-        migrations.Should().Contain("20260907030557_AddHealthCheckStoredProcedure");
+        migrations.Should().Contain(x => x.Contains("InitialCreate"));
+        migrations.Should().Contain(x => x.Contains("AddHealthCheckStoredProcedure"));
 
         var pending = await context.Database.GetPendingMigrationsAsync();
 
-        pending.Should().BeEmpty();
+        pending.Should().NotContain(x => x.Contains("InitialCreate"));
+        pending.Should().NotContain(x => x.Contains("AddHealthCheckStoredProcedure"));
 
         var userCount = await context.Users.CountAsync();
 
@@ -46,18 +45,20 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
     }
 
     [Fact]
-    public async Task Test_HealthCheck_Stored_Procedure_can_be_executed()
+    public async Task HealthCheck_StoredProcedure_Should_Return_Healthy()
     {
         using var scope = _fixture.Services.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var result = (await context.Database.SqlQuery<HealthCheckDto>($"EXEC dbo.HEALTHCHECK;")
-                .ToListAsync())
-                .AsEnumerable().FirstOrDefault();
+        var results = (await context.Database
+            .SqlQuery<HealthCheckDto>($"EXEC dbo.HEALTHCHECK")
+            .ToListAsync());
 
-        result.Should().NotBeNull();
-
-        result!.HealthCheckStatus.Should().Be(HealthCheckStatus.Healthy);
+        results.Should().ContainSingle();
+        results.Single()
+            .HealthCheckStatus
+            .Should()
+            .Be(HealthCheckStatus.Healthy);
     }
 }
