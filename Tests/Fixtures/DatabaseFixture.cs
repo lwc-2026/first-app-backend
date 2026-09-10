@@ -8,30 +8,31 @@ namespace Tests.Fixtures;
 
 public class DatabaseFixture : IAsyncLifetime
 {
-    private DbConnection _connection = null!;
-    private Respawner _respawner = null!;
-    private readonly TestWebApplicationFactory _factory;
-    public IServiceProvider Services => _factory.Services;
+    private DbConnection? _dbConnection;
+    private Respawner? _respawner;
+    private readonly TestWebApplicationFactory _webApplicationFactory;
+    public IServiceProvider Services => _webApplicationFactory.Services;
+    public IServiceScope CreateScope() => Services.CreateScope();
 
     // constructor
     public DatabaseFixture()
     {
-        _factory = new TestWebApplicationFactory();
+        _webApplicationFactory = new TestWebApplicationFactory();
     }
 
     public async Task InitializeAsync()
     {
-        using var scope = Services.CreateScope();
+        using var scope = CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        _connection = context.Database.GetDbConnection();
-
-        await _connection.OpenAsync();
-
         await context.Database.MigrateAsync();
 
-        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions{ 
+        _dbConnection = context.Database.GetDbConnection();
+
+        await _dbConnection.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions{ 
             DbAdapter = DbAdapter.SqlServer,
             TablesToIgnore =
             [
@@ -42,12 +43,17 @@ public class DatabaseFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _connection.DisposeAsync();
+        if (_dbConnection != null)
+        {
+            await _dbConnection.DisposeAsync();
+        }
+
+        await _webApplicationFactory.DisposeAsync();
     }
 
     public async Task ResetDatabaseAsync()
     {
-        await _respawner.ResetAsync(_connection);
+        await _respawner!.ResetAsync(_dbConnection!);
     }
 
 }

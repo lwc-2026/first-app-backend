@@ -20,7 +20,7 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
     [Fact]
     public async Task Database_Should_Be_Migrated_Successfully()
     {
-        using var scope = _fixture.Services.CreateScope();
+        using var scope = _fixture.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -36,8 +36,7 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
 
         var pending = await context.Database.GetPendingMigrationsAsync();
 
-        pending.Should().NotContain(x => x.Contains("InitialCreate"));
-        pending.Should().NotContain(x => x.Contains("AddHealthCheckStoredProcedure"));
+        pending.Should().BeEmpty();
 
         var userCount = await context.Users.CountAsync();
 
@@ -47,7 +46,7 @@ public class MigrationTest : IClassFixture<DatabaseFixture>
     [Fact]
     public async Task HealthCheck_StoredProcedure_Should_Return_Healthy()
     {
-        using var scope = _fixture.Services.CreateScope();
+        using var scope = _fixture.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
