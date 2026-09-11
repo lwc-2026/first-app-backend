@@ -2,25 +2,17 @@ using Tests.Fixtures;
 
 namespace Tests.IntegrationTests;
 
-[Collection("Database")]
-public abstract class IntegrationTestBase: IClassFixture<TestWebApplicationFactory>, IClassFixture<DatabaseFixture>, IAsyncLifetime
+public abstract class IntegrationTestBase(DatabaseFixture fixture): IAsyncLifetime
 {
-    protected readonly DatabaseFixture _fixture;
-    protected readonly HttpClient _client;
+    protected readonly DatabaseFixture _fixture = fixture;
 
-    protected IntegrationTestBase(TestWebApplicationFactory factory, DatabaseFixture fixture)
+    public async Task InitializeAsync()
     {
-        _fixture = fixture;
-        _client = factory.CreateClient();
+        await _fixture.ResetDatabaseAsync();
     }
 
-    public Task InitializeAsync()
+    public async Task DisposeAsync()
     {
-        throw new NotImplementedException();
-    }
-
-    public Task DisposeAsync()
-    {
-        throw new NotImplementedException();
+        
     }
 }
