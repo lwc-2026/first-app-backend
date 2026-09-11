@@ -20,16 +20,18 @@ namespace Service.Implementations
         {
             try
             {
-                var result = (await _context
-                        .Database.SqlQuery<HealthCheckDto>($"EXEC HEALTHCHECK")
-                        .ToListAsync())
-                        .AsEnumerable().FirstOrDefault();
+                var result = await _context.Database
+                    .SqlQuery<HealthCheckDto>("EXEC HEALTHCHECK")
+                    .FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception e)
             {
                 // Implement logger??
-                return new HealthCheckDto();
+                return new HealthCheckDto()
+                {
+                    HealthCheckStatus = BusinessModel.Enums.HealthCheckStatus.Unhealthy
+                };
             }
         }
     }
