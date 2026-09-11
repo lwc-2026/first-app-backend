@@ -1,6 +1,8 @@
 ﻿using BusinessModel.DTOs;
+using DataAccess.Dbcontexts;
 using Microsoft.EntityFrameworkCore;
 using Service.Interfaces;
+using SQLitePCL;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,11 +12,15 @@ namespace Service.Implementations
 {
     public class HealthCheckService : IHealthCheckService
     {
-        public async Task<HealthCheckDto?> HealthCheck(DbContext context)
+        private readonly AppDbContext _context;
+        public HealthCheckService(AppDbContext context) {
+            _context = context;
+        }
+        public async Task<HealthCheckDto?> HealthCheck()
         {
             try
             {
-                var result = (await context
+                var result = (await _context
                         .Database.SqlQuery<HealthCheckDto>($"EXEC HEALTHCHECK")
                         .ToListAsync())
                         .AsEnumerable().FirstOrDefault();

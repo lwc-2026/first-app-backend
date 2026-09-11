@@ -9,6 +9,6 @@ namespace Service.Interfaces
 {
     public interface IHealthCheckService
     {
-        public Task<HealthCheckDto?> HealthCheck(DbContext context);
+        public Task<HealthCheckDto?> HealthCheck();
     }
 }
