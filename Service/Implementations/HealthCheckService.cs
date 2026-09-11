@@ -2,7 +2,6 @@
 using DataAccess.Dbcontexts;
 using Microsoft.EntityFrameworkCore;
 using Service.Interfaces;
-using SQLitePCL;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +20,7 @@ namespace Service.Implementations
             try
             {
                 var result = await _context.Database
-                    .SqlQuery<HealthCheckDto>("EXEC HEALTHCHECK")
+                    .SqlQuery<HealthCheckDto>($"EXEC HEALTHCHECK")
                     .FirstOrDefaultAsync();
                 return result;
             }
