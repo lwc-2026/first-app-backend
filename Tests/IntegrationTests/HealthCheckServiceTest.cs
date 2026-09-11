@@ -11,8 +11,10 @@ using Tests.Fixtures;
 namespace Tests.IntegrationTests
 {
     [Collection("Integration")]
-    public class HealthCheckServiceTest(DatabaseFixture fixture) : IntegrationTestBase(fixture)
+    public class HealthCheckServiceTest(DatabaseFixture fixture)
     {
+        private DatabaseFixture _fixture = fixture;
+
         [Fact]
         public async Task Can_return_health_check_dto()
         {

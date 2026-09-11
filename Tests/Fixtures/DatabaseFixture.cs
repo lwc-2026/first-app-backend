@@ -26,6 +26,7 @@ public class DatabaseFixture : IAsyncLifetime
 
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+        await context.Database.EnsureDeletedAsync();
         await context.Database.MigrateAsync();
 
         _dbConnection = context.Database.GetDbConnection();
