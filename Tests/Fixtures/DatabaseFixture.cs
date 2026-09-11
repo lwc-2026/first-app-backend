@@ -13,6 +13,7 @@ public class DatabaseFixture : IAsyncLifetime
     private readonly TestWebApplicationFactory _webApplicationFactory;
     public IServiceProvider Services => _webApplicationFactory.Services;
     public IServiceScope CreateScope() => Services.CreateScope();
+    public HttpClient CreateClient() => _webApplicationFactory.CreateClient();
 
     // constructor
     public DatabaseFixture()
