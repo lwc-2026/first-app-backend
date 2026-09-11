@@ -17,13 +17,6 @@ namespace DataAccess.Migrations
             BEGIN
             SET NOCOUNT ON;
             SELECT
-                GETUTCDATE() AS UtcTime,
-                CAST(
-                    GETUTCDATE()
-                    AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'China Standard Time'
-                    AS DATETIME2
-                ) AS MacauTime,
                 1 AS HealthCheckStatus; -- 1 indicates healthy
             END
             """);

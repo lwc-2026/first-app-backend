@@ -7,8 +7,6 @@ namespace BusinessModel.DTOs
 { 
     public class HealthCheckDto
     {
-        public DateTime? UtcTime { get; set; }
-        public DateTime? MacauTime { get; set; }
         public HealthCheckStatus HealthCheckStatus { get; set; } = HealthCheckStatus.Unhealthy;
 
         public void UpdateHealthCheckStatusToHealthy()
