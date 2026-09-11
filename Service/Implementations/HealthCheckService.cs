@@ -19,9 +19,10 @@ namespace Service.Implementations
         {
             try
             {
-                var result = await _context.Database
-                    .SqlQuery<HealthCheckDto>($"EXEC HEALTHCHECK")
-                    .FirstOrDefaultAsync();
+                var result = (await _context
+                        .Database.SqlQuery<HealthCheckDto>($"EXEC HEALTHCHECK")
+                        .ToListAsync())
+                        .AsEnumerable().FirstOrDefault();
                 return result;
             }
             catch (Exception e)
