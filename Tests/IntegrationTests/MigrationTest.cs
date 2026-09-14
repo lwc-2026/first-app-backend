@@ -8,7 +8,7 @@ using BusinessModel.Enums;
 
 namespace Tests.IntegrationTests;
 
-[Collection("Integration")]
+[Collection("Database")]
 public class MigrationTest
 {
     private readonly DatabaseFixture _fixture;
