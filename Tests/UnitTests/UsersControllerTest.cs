@@ -51,11 +51,12 @@ public class UsersControllerTest: UnitTestBase
     public async Task Test_controller_can_create_user()
     {
         AppUser user = UserFactory.Create();
+        var password = base.Faker.Internet.Password();
         CreateUserHttpRequest httpRequest = new CreateUserHttpRequest
         {
             Username = user.Username,
             Email = user.Email,
-            Password = user.Password
+            Password = password
         };
 
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
@@ -69,13 +70,12 @@ public class UsersControllerTest: UnitTestBase
         mockUserService.Verify(x => x.CreateUserAsync(It.Is<CreateUserServiceRequest>(request => 
              request.Username == user.Username &&
              request.Email == user.Email &&
-             request.Password == user.Password)), Times.Exactly(1));
+             request.Password == password)), Times.Exactly(1));
 
         CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(actionResult);
         AppUser actualUser = Assert.IsType<AppUser>(createdResult.Value);
         Assert.Equal(user.Username, actualUser.Username);
         Assert.Equal(user.Email, actualUser.Email);
-        Assert.Equal(user.Password, actualUser.Password);
     }
 
     [Fact]
@@ -84,11 +84,12 @@ public class UsersControllerTest: UnitTestBase
         AppUser user = UserFactory.Create();
         AppUser updatedUser = UserFactory.Create();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
+        var updatedPassword = base.Faker.Internet.Password();
         mockUserService.Setup(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
-            request.Id == updatedUser.Id &&
+            request.Id == user.Id &&
             request.Username == updatedUser.Username &&
             request.Email == updatedUser.Email &&
-            request.Password == updatedUser.Password
+            request.Password == updatedPassword
             )))
             .ReturnsAsync(user)
             .Verifiable();
@@ -98,14 +99,14 @@ public class UsersControllerTest: UnitTestBase
         {
             Username = updatedUser.Username,
             Email = updatedUser.Email,
-            Password = updatedUser.Password
+            Password = updatedPassword
         }, user.Id);
 
         mockUserService.Verify(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
             request.Id == user.Id &&
             request.Username == updatedUser.Username &&
             request.Email == updatedUser.Email &&
-            request.Password == updatedUser.Password
+            request.Password == updatedPassword
             )), Times.Exactly(1));
         Assert.IsType<NoContentResult>(actionResult);
     }

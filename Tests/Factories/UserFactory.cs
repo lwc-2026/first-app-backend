@@ -10,11 +10,17 @@ public class UserFactory : Factory
                           string? email = null,
                           string? password = null)
     {
+        password ??= base.faker.Internet.Password();
+        var hmac = new System.Security.Cryptography.HMACSHA512();
+        var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+        var passwordSalt = hmac.Key;
+
         return UsersBuilder.Build(
             id: id ?? base.faker.Random.Guid().ToString(),
             username: username ?? base.faker.Internet.UserName(),
             email: email ?? base.faker.Internet.Email(),
-            password: password ?? base.faker.Internet.Password()
+            passwordHash: passwordHash,
+            passwordSalt: passwordSalt
         );
     }
     

@@ -100,14 +100,13 @@ public class UsersServiceTest
 
         context.ChangeTracker.Clear();
 
-        var query = context.Users.Where(x => x.Username == username && x.Email == email && x.Password == password);
+        var query = context.Users.Where(x => x.Username == username && x.Email == email);
 
         List<AppUser> queryResult = await query.ToListAsync();
 
         queryResult.Should().HaveCount(1);
         queryResult.Single().Username.Should().Be(username);
         queryResult.Single().Email.Should().Be(email);
-        queryResult.Single().Password.Should().Be(password);
     }
 
 
@@ -135,7 +134,6 @@ public class UsersServiceTest
         queryResult.Single().Id.Should().Be(user.Id);
         queryResult.Single().Username.Should().Be(user.Username);
         queryResult.Single().Email.Should().Be(user.Email);
-        queryResult.Single().Password.Should().Be(user.Password);
 
         await userService.DeleteUserAsync(serviceRequest);
 
@@ -167,7 +165,6 @@ public class UsersServiceTest
         queryResult.Single().Id.Should().Be(user.Id);
         queryResult.Single().Username.Should().Be(user.Username);
         queryResult.Single().Email.Should().Be(user.Email);
-        queryResult.Single().Password.Should().Be(user.Password);
 
         string updatedUsername = _faker.Internet.UserName();
         string updatedEmail = _faker.Internet.Email();
@@ -189,7 +186,6 @@ public class UsersServiceTest
         queryResult.Single().Id.Should().Be(user.Id);
         queryResult.Single().Username.Should().Be(updatedUsername);
         queryResult.Single().Email.Should().Be(updatedEmail);
-        queryResult.Single().Password.Should().Be(updatedPassword);
     }
 }
 

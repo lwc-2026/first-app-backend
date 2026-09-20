@@ -26,12 +26,14 @@ namespace Service.Implementations
 
         public async Task<AppUser> CreateUserAsync(CreateUserServiceRequest request)
         {
+            var hmac = new System.Security.Cryptography.HMACSHA512();
             AppUser user = new AppUser
             {
                 Id = Guid.NewGuid().ToString(),
                 Username = request.Username,
                 Email = request.Email,
-                Password = request.Password,
+                PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(request.Password)),
+                PasswordSalt = hmac.Key,
             };
 
             context.Users.Add(user);
@@ -48,11 +50,16 @@ namespace Service.Implementations
 
         public async Task<AppUser> UpdateUserAsync(UpdateUserServiceRequest request)
         {
+            
             AppUser? user = await GetUserById(request.Id);
 
             if (request.Email != null) user.Email = request.Email;
             if (request.Username != null) user.Username = request.Username;
-            if (request.Password != null) user.Password = request.Password;
+            if (request.Password != null) {
+                var hmac = new System.Security.Cryptography.HMACSHA512();
+                user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(request.Password));
+                user.PasswordSalt = hmac.Key;
+            }
             context.Users.Update(user);
             await context.SaveChangesAsync();
             return await GetUserById(request.Id);
