@@ -25,7 +25,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer("Server=sql1-test,1433;Database=firstapp;User Id=sa;Password=P@ssw0rd123;Encrypt=True;TrustServerCertificate=True;");
+                options.UseSqlServer("Server=127.0.0.1,14333;Database=firstapp;User Id=sa;Password=P@ssw0rd123;Encrypt=True;TrustServerCertificate=True;");
             });
         });
     }
