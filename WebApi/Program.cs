@@ -1,5 +1,7 @@
 using DataAccess.Dbcontexts;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Service.Interfaces;
 using Service.Implementations;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,13 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
+        options => builder.Configuration.Bind("JwtSettings", options))
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+        options => builder.Configuration.Bind("CookieSettings", options));
 
 var app = builder.Build();
 
@@ -49,8 +58,18 @@ app.UseCors(builder => builder
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+// writing Iconfigufation class to console and see if confirguation file are ready to IO
+
+Console.WriteLine(builder.Configuration["JwtSettings:Secret"] ?? "Not Found");
+Console.WriteLine(builder.Configuration["JwtSettings:Issuer"] ?? "Not Found");
+Console.WriteLine(builder.Configuration["JwtSettings:Audience"] ?? "Not Found");
+Console.WriteLine(builder.Configuration["CookieSettings:LoginPath"] ?? "Not Found");
+Console.WriteLine(builder.Configuration["CookieSettings:LogoutPath"] ?? "Not Found");
+Console.WriteLine(builder.Configuration["CookieSettings:ExpireTime"] ?? "Not Found");
