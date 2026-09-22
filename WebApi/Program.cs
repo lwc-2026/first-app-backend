@@ -54,6 +54,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret!))
         };
+
+
     });
 
 var app = builder.Build();
@@ -71,7 +73,7 @@ if (app.Environment.IsDevelopment())
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         if(dbContext.Users.Any() == false)
         {
-            TestUserSeeder.Seed(dbContext);
+            await TestUserSeeder.Seed(dbContext);
         }
     }
 }

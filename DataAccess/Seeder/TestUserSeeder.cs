@@ -1,11 +1,13 @@
 using System;
 using DataAccess.Dbcontexts;
 using DataAccess.Entities;
+using System.Linq;
+using System.Threading.Tasks;
 namespace DataAccess.Seeder;
 
 public class TestUserSeeder
 {
-    public static void Seed(AppDbContext dbContext)
+    public static async Task Seed(AppDbContext dbContext)
     {
         // Add test users here
         if(dbContext.Users.Any() == false)
@@ -18,7 +20,7 @@ public class TestUserSeeder
                 PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("P@ssw0rd123")),
                 PasswordSalt = hmac.Key
             });
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
         }
     }
 }
