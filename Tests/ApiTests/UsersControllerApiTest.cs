@@ -30,6 +30,8 @@ public class UsersControllerApiTest(DatabaseFixture fixture)
         context.Users.Add(appuser);
         await context.SaveChangesAsync();
 
+        await _fixture.ActingAsAsync(_client);
+
         var response = await _client.GetAsync("/api/users");
 
         response.EnsureSuccessStatusCode();
