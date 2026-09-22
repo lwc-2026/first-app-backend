@@ -7,7 +7,7 @@ using WebApi.Requests;
 
 namespace WebApi.Controllers
 {
-    [Authorize("api")]
+    [Authorize]
     [ApiController]
     [Route("/api/[controller]")]
     public class UsersController : ControllerBase
