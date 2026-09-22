@@ -32,11 +32,9 @@ namespace Service.Implementations
 
             if (!CryptographicOperations.FixedTimeEquals(computedPasswordHash, user.PasswordHash))
             {
-                Console.WriteLine("Password verification failed.");
                 return null;
             }
 
-            Console.WriteLine("Password verification succeeded.");
             // Password is correct, proceed with generating JWT token
             var jwtSecret = _configuration["JwtSettings:Secret"];
             if (string.IsNullOrEmpty(jwtSecret))
