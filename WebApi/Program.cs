@@ -7,6 +7,7 @@ using Service.Implementations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using DataAccess.Seeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +65,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if(dbContext.Users.Any() == false)
+        {
+            TestUserSeeder.Seed(dbContext);
+        }
+    }
 }
 
 app.UseCors(builder => builder
@@ -80,9 +90,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-// writing Iconfigufation class to console and see if confirguation file are ready to IO
-
-Console.WriteLine(builder.Configuration["JwtSettings:Secret"] ?? "Not Found");
-Console.WriteLine(builder.Configuration["JwtSettings:Issuer"] ?? "Not Found");
-Console.WriteLine(builder.Configuration["JwtSettings:Audience"] ?? "Not Found");
