@@ -1,8 +1,11 @@
 using DataAccess.Dbcontexts;
+using DataAccess.Entities;
+using DataAccess.Seeder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
 using System.Data.Common;
+using System.Text.Json;
 
 namespace Tests.Fixtures;
 
@@ -58,4 +61,49 @@ public class DatabaseFixture : IAsyncLifetime
         await _respawner!.ResetAsync(_dbConnection!);
     }
 
+    public async Task<HttpClient> ActingAsAsync(HttpClient client)
+    {
+        using var scope = CreateScope();
+        {
+            using var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            {
+                AppUser? user = await context.Users.FirstOrDefaultAsync(x => x.Username == "testuser");
+
+                if(user is null)
+                {
+                    using var hmac = new System.Security.Cryptography.HMACSHA512();
+                    {
+                        var password = "P@ssw0rd123";
+                        user = new AppUser
+                        {
+                            Username = "testuser",
+                            Email = "testuser@example.com",
+                            PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)),
+                            PasswordSalt = hmac.Key
+                        };
+                        context.Users.Add(user);
+                        await context.SaveChangesAsync();
+                    }
+                }
+
+                if(user is not null)
+                {
+                    using var _client = CreateClient();
+                    {
+                        WebApi.Requests.LoginHttpRequest loginRequest = new WebApi.Requests.LoginHttpRequest()
+                        {
+                            Username = user.Username,
+                            Password = "P@ssw0rd123",
+                        };
+                        var result = await _client.PostAsync($"/api/Auth/Login",
+                        new StringContent(JsonSerializer.Serialize(loginRequest), System.Text.Encoding.UTF8, "application/json"));
+                        var responseContent = await result.Content.ReadAsStringAsync();
+                        var responseJson = JsonSerializer.Deserialize<JsonElement>(responseContent);
+                        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", responseJson.GetProperty("token").GetString());
+                    }
+                }
+            }
+        }
+        return client;
+    }
 }
