@@ -1,11 +1,13 @@
 ﻿using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Service.Interfaces;
 using Service.Requests;
 using WebApi.Requests;
 
 namespace WebApi.Controllers
 {
+    [Authorize("api")]
     [ApiController]
     [Route("/api/[controller]")]
     public class UsersController : ControllerBase
