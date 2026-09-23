@@ -1,5 +1,6 @@
 using System.Text.Json;
 using DataAccess.Entities;
+using BusinessModel.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
@@ -22,8 +23,13 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_get_users_list()
     {
-        List<AppUser> userList = UserFactory.CreateMany(10);
-        Task<List<AppUser>> result = Task.FromResult(userList);
+        List<UserDto> userList = UserFactory.CreateMany(10).Select(user => new UserDto
+        {
+           Id = user.Id,
+           Username = user.Username,
+           Email = user.Email
+        }).ToList();
+        Task<List<UserDto>> result = Task.FromResult(userList);
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
         mockUserService.Setup(x => x.GetUsersList()).ReturnsAsync(userList).Verifiable();
 
@@ -36,12 +42,12 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_get_user_by_id()
     {
-        AppUser user = UserFactory.Create();
+        UserDto user = UserFactory.Create().ToDto();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
         mockUserService.Setup(x => x.GetUserById(user.Id)).ReturnsAsync(user).Verifiable();
 
         var controller = new UsersController(mockUserService.Object);
-        ActionResult<AppUser>? actionResult = await controller.GetUser(user.Id);
+        ActionResult<UserDto>? actionResult = await controller.GetUser(user.Id);
 
         mockUserService.Verify(x => x.GetUserById(user.Id), Times.Exactly(1));
         Assert.IsType<OkObjectResult>(actionResult?.Result);
@@ -50,7 +56,7 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_create_user()
     {
-        AppUser user = UserFactory.Create();
+        UserDto user = UserFactory.Create().ToDto();
         var password = base.Faker.Internet.Password();
         CreateUserHttpRequest httpRequest = new CreateUserHttpRequest
         {
@@ -73,7 +79,7 @@ public class UsersControllerTest: UnitTestBase
              request.Password == password)), Times.Exactly(1));
 
         CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(actionResult);
-        AppUser actualUser = Assert.IsType<AppUser>(createdResult.Value);
+        UserDto actualUser = Assert.IsType<UserDto>(createdResult.Value);
         Assert.Equal(user.Username, actualUser.Username);
         Assert.Equal(user.Email, actualUser.Email);
     }
@@ -81,8 +87,8 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_update_user()
     {
-        AppUser user = UserFactory.Create();
-        AppUser updatedUser = UserFactory.Create();
+        UserDto user = UserFactory.Create().ToDto();
+        UserDto updatedUser = UserFactory.Create().ToDto();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
         var updatedPassword = base.Faker.Internet.Password();
         mockUserService.Setup(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
@@ -114,7 +120,7 @@ public class UsersControllerTest: UnitTestBase
     [Fact]
     public async Task Test_controller_can_delete_user()
     {
-        AppUser user = UserFactory.Create();
+        UserDto user = UserFactory.Create().ToDto();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
         mockUserService.Setup(x => x.DeleteUserAsync(It.Is<DeleteUserServiceRequest>(request => request.Id == user.Id)))
             .Returns(Task.CompletedTask)

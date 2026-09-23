@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using BusinessModel.DTOs;
 using DataAccess.Dbcontexts;
 using DataAccess.Entities;
 using FluentAssertions;
@@ -54,7 +55,7 @@ public class UsersServiceTest
         var result = await userService.GetUsersList();
 
         // assertions
-        result.Should().BeOfType<List<AppUser>>();
+        result.Should().BeOfType<List<UserDto>>();
     }
 
     [Fact]
@@ -71,12 +72,12 @@ public class UsersServiceTest
 
         context.ChangeTracker.Clear();
 
-        AppUser? result = await userService.GetUserById(appUser.Id);
+        UserDto? result = await userService.GetUserById(appUser.Id);
 
         // assertions
 
-        result.Should().BeOfType<AppUser>();
-        result.Should().BeEquivalentTo(appUser);
+        result.Should().BeOfType<UserDto>();
+        result.Should().BeEquivalentTo(appUser.ToDto());
     }
 
     [Fact]
@@ -96,7 +97,7 @@ public class UsersServiceTest
             password: password
         );
 
-        AppUser? result = await userService.CreateUserAsync(serviceRequest);
+        UserDto result = await userService.CreateUserAsync(serviceRequest);
 
         context.ChangeTracker.Clear();
 

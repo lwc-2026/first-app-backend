@@ -1,4 +1,5 @@
 using Azure;
+using BusinessModel.DTOs;
 using DataAccess.Dbcontexts;
 using DataAccess.Entities;
 using FluentAssertions;
@@ -37,7 +38,7 @@ public class UsersControllerApiTest(DatabaseFixture fixture)
         response.EnsureSuccessStatusCode();
 
         // more assertions
-        var users = await response.Content.ReadFromJsonAsync<List<AppUser>>() ?? new List<AppUser>();
+        var users = await response.Content.ReadFromJsonAsync<List<UserDto>>() ?? new List<UserDto>();
         users.Should().ContainSingle(u => u.Id == appuser.Id);
         users.Should().ContainSingle(u => u.Email == appuser.Email);
         users.Should().ContainSingle(u => u.Username == appuser.Username);

@@ -1,4 +1,4 @@
-﻿using DataAccess.Entities;
+﻿using BusinessModel.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Service.Interfaces;
@@ -20,13 +20,13 @@ namespace WebApi.Controllers
         }
 
         [HttpGet(Name = "Users.Index")]
-        public async Task<ActionResult<IReadOnlyCollection<AppUser>>> GetUsers()
+        public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetUsers()
         {
             return Ok(await usersService.GetUsersList());
         }
 
         [HttpGet("{id}", Name = "Users.Show")]
-        public async Task<ActionResult<AppUser>?> GetUser([FromRoute] string id)
+        public async Task<ActionResult<UserDto>?> GetUser([FromRoute] string id)
         {
             return Ok(await usersService.GetUserById(id));
         }   
@@ -35,7 +35,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> CreateUser([FromBody] CreateUserHttpRequest request)
         {
             CreateUserServiceRequest serviceRequest = new(username: request.Username, email: request.Email,password: request.Password);
-            AppUser user = await usersService.CreateUserAsync(serviceRequest);
+            UserDto user = await usersService.CreateUserAsync(serviceRequest);
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
