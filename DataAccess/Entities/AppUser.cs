@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
+using BusinessModel.DTOs;
 namespace DataAccess.Entities;
 
 public class AppUser
@@ -14,4 +14,13 @@ public class AppUser
     public required byte[] PasswordHash { get; set; }
     [Required]
     public required byte[] PasswordSalt { get; set; }
+    public UserDto ToDto()
+    {
+        return new UserDto
+        {
+            Id = this.Id,
+            Username = this.Username,
+            Email = this.Email
+        };
+    }
 }
