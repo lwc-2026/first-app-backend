@@ -28,5 +28,6 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 options.UseSqlServer("Server=sql1-test,1433;Database=firstapp;User Id=sa;Password=P@ssw0rd123;Encrypt=True;TrustServerCertificate=True;");
             });
         });
+        builder.UseEnvironment("Testing");
     }
 }
