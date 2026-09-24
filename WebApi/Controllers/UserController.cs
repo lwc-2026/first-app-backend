@@ -46,8 +46,7 @@ namespace WebApi.Controllers
             {
                 Id = id,
                 Username = request.Username,
-                Email = request.Email,
-                Password = request.Password
+                Email = request.Email
             };
             await usersService.UpdateUserAsync(serviceRequest);
             return NoContent();

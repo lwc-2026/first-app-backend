@@ -90,12 +90,11 @@ public class UsersControllerTest: UnitTestBase
         UserDto user = UserFactory.Create().ToDto();
         UserDto updatedUser = UserFactory.Create().ToDto();
         Mock<IUsersService> mockUserService = new Mock<IUsersService>();
-        var updatedPassword = base.Faker.Internet.Password();
+
         mockUserService.Setup(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
             request.Id == user.Id &&
             request.Username == updatedUser.Username &&
-            request.Email == updatedUser.Email &&
-            request.Password == updatedPassword
+            request.Email == updatedUser.Email
             )))
             .ReturnsAsync(user)
             .Verifiable();
@@ -105,14 +104,12 @@ public class UsersControllerTest: UnitTestBase
         {
             Username = updatedUser.Username,
             Email = updatedUser.Email,
-            Password = updatedPassword
         }, user.Id);
 
         mockUserService.Verify(x => x.UpdateUserAsync(It.Is<UpdateUserServiceRequest>(request => 
             request.Id == user.Id &&
             request.Username == updatedUser.Username &&
-            request.Email == updatedUser.Email &&
-            request.Password == updatedPassword
+            request.Email == updatedUser.Email
             )), Times.Exactly(1));
         Assert.IsType<NoContentResult>(actionResult);
     }
