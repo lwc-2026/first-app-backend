@@ -89,6 +89,7 @@ if (app.Environment.IsDevelopment())
         if(dbContext.Users.Any() == false)
         {
             await TestUserSeeder.Seed(dbContext);
+            await TestAssetSeeder.Seed(dbContext);
         }
     }
 }
