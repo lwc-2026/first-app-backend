@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataAccess.Entities;
@@ -28,7 +29,7 @@ public class SoftDeleteInterceptor(TimeProvider timeProvider) : SaveChangesInter
     {
         if (context == null) return;
 
-        foreach (var entry in context.ChangeTracker.Entries<ISoftDelete>())
+        foreach (var entry in context.ChangeTracker.Entries<ISoftDelete>().Where(e => e.State == EntityState.Deleted))
         {
             if (entry.State == EntityState.Deleted)
             {
