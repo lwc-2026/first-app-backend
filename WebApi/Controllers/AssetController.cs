@@ -8,9 +8,10 @@ namespace WebApi.Controllers
 {
     [Route("api/assets")]
     [ApiController]
-    public class AssetController(IAssetService assetService) : ControllerBase
+    public class AssetController(IAssetService assetService, IUserContext userContext) : ControllerBase
     {
         private IAssetService _assetService = assetService;
+        private IUserContext _userContext = userContext;
 
         [HttpGet]
         public async Task<IActionResult> GetAssets()
@@ -67,26 +68,34 @@ namespace WebApi.Controllers
         [HttpPost("{id}/assign")]
         public async Task<IActionResult> AssignAsset([FromRoute] int id, [FromBody] AssignAssetHttpRequest request)
         {
+            if(_userContext.UserId == null)
+            {
+                return Unauthorized();
+            }
             AssignAssetServiceRequest serviceRequest = new AssignAssetServiceRequest(
                 id,
                 request.UserId,
                 request.AssetId,
                 request.Description
             );
-            await _assetService.AssignAssetAsync(serviceRequest);
+            await _assetService.AssignAssetAsync(serviceRequest, _userContext.UserId);
             return NoContent();
         }
 
         [HttpPost("{id}/return")]
         public async Task<IActionResult> ReturnAsset([FromRoute] int id, [FromBody] ReturnAssetHttpRequest request)
         {
+            if(_userContext.UserId == null)
+            {
+                return Unauthorized();
+            }
             ReturnAssetServiceRequest serviceRequest = new ReturnAssetServiceRequest(
                 id,
                 request.UserId,
                 request.AssetId,
                 request.Description
             );
-            await _assetService.ReturnAssetAsync(serviceRequest);
+            await _assetService.ReturnAssetAsync(serviceRequest, _userContext.UserId);
             return NoContent();
         }
     }
