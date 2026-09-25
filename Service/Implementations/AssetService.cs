@@ -70,4 +70,26 @@ public class AssetService(AppDbContext context) : IAssetService
     {
         return await _context.Users.AnyAsync(u => u.Id == userId);
     }
+
+    public async Task AssignAssetAsync(AssignAssetServiceRequest request)
+    {
+        Asset asset = await GetAssetByIdAsync(request.AssetId);
+        if(!await this.UserExistsAsync(request.UserId))
+        {
+            throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
+        }
+        asset.UserId = request.UserId;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ReturnAssetAsync(ReturnAssetServiceRequest request)
+    {
+        Asset asset = await GetAssetByIdAsync(request.AssetId);
+        if(asset.UserId != request.UserId)
+        {
+            throw new InvalidOperationException($"Asset with ID {request.AssetId} is not assigned to user with ID {request.UserId}.");
+        }
+        asset.UserId = null;
+        await _context.SaveChangesAsync();
+    }
 }

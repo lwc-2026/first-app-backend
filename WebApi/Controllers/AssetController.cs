@@ -63,5 +63,31 @@ namespace WebApi.Controllers
             await _assetService.DeleteAssetAsync(id);
             return NoContent();
         }
+
+        [HttpPost("{id}/assign")]
+        public async Task<IActionResult> AssignAsset([FromRoute] int id, [FromBody] AssignAssetHttpRequest request)
+        {
+            AssignAssetServiceRequest serviceRequest = new AssignAssetServiceRequest(
+                id,
+                request.UserId,
+                request.AssetId,
+                request.Description
+            );
+            await _assetService.AssignAssetAsync(serviceRequest);
+            return NoContent();
+        }
+
+        [HttpPost("{id}/return")]
+        public async Task<IActionResult> ReturnAsset([FromRoute] int id, [FromBody] ReturnAssetHttpRequest request)
+        {
+            ReturnAssetServiceRequest serviceRequest = new ReturnAssetServiceRequest(
+                id,
+                request.UserId,
+                request.AssetId,
+                request.Description
+            );
+            await _assetService.ReturnAssetAsync(serviceRequest);
+            return NoContent();
+        }
     }
 }
