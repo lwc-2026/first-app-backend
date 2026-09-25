@@ -3,7 +3,7 @@ using BusinessModel.DTOs;
 using Microsoft.EntityFrameworkCore;
 namespace DataAccess.Entities;
 
-public class AppUser : BaseEntity
+public class AppUser : BaseEntity, ISoftDelete
 {
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -27,4 +27,6 @@ public class AppUser : BaseEntity
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     public ICollection<Asset> Assets { get; set; } = new List<Asset>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; } = null;
 }

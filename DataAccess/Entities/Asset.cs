@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Entities;
 
-public class Asset : BaseEntity
+public class Asset : BaseEntity, ISoftDelete
 {
     [Key]
     public int Id { get; set; }
@@ -17,8 +17,9 @@ public class Asset : BaseEntity
     public required string Model { get; set; }
     [Required]
     public required AssetStatus Status { get; set; }
-    public string? AssignedUserId { get; set; }
-
-    [ForeignKey(nameof(AssignedUserId))]
-    public AppUser? AssignedUser { get; set; }
+    public string? UserId { get; set; }
+    [ForeignKey(nameof(UserId))]
+    public AppUser? User { get; set; }
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; } = null;
 }

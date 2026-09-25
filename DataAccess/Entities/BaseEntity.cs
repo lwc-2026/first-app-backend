@@ -2,11 +2,8 @@ using System;
 using System.ComponentModel.DataAnnotations;
 namespace DataAccess.Entities;
 
-public class BaseEntity
+public abstract class BaseEntity
 {
-    [Required]
-    public DateTime CreatedAt { get; set; }
-    [Required]
-    public DateTime UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; } = null;
+    public DateTime? CreatedAt { get; set; } = null;
+    public DateTime? UpdatedAt { get; set; } = null;
 }
