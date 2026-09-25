@@ -15,17 +15,26 @@ public class AssetService(AppDbContext context) : IAssetService
     private readonly AppDbContext _context = context;
     public async Task<IEnumerable<Asset>> GetAssetsAsync()
     {
-        return await _context.Assets.Include(a => a.User).ToListAsync();
+        return await _context.Assets
+            .AsNoTracking()
+            .Include(a => a.User)
+            .ToListAsync();
     }
 
     public async Task<Asset> GetAssetByIdAsync(int id)
     {
-        return await _context.Assets.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
+        return await _context.Assets
+            .Include(a => a.User)
+            .FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
     }
 
     public async Task<Asset> CreateAssetAsync(CreateAssetServiceRequest request)
     {
         Asset asset = request.ToEntity();
+        if (asset.UserId != null && !await this.UserExistsAsync(asset.UserId))
+        {
+            throw new KeyNotFoundException($"User with ID {asset.UserId} not found.");
+        }
         _context.Assets.Add(asset);
         await _context.SaveChangesAsync();
         return asset;
@@ -39,7 +48,14 @@ public class AssetService(AppDbContext context) : IAssetService
         if (request.AssetNo != null) asset.AssetNo = request.AssetNo;
         if (request.Model != null) asset.Model = request.Model;
         if (request.Status != null) asset.Status = (AssetStatus)request.Status;
-        if (request.UserId != null) asset.UserId = request.UserId;
+        if (request.UserId != null)
+        {
+            if(!await this.UserExistsAsync(request.UserId))
+            {
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
+            }
+            asset.UserId = request.UserId;
+        }
         await _context.SaveChangesAsync();
     }
 
@@ -48,5 +64,10 @@ public class AssetService(AppDbContext context) : IAssetService
         Asset asset = await GetAssetByIdAsync(id);
         _context.Assets.Remove(asset);
         await _context.SaveChangesAsync();
+    }
+
+    private async Task<bool> UserExistsAsync(string userId)
+    {
+        return await _context.Users.AnyAsync(u => u.Id == userId);
     }
 }
