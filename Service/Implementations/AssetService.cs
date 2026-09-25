@@ -15,12 +15,12 @@ public class AssetService(AppDbContext context) : IAssetService
     private readonly AppDbContext _context = context;
     public async Task<IEnumerable<Asset>> GetAssetsAsync()
     {
-        return await _context.Assets.ToListAsync();
+        return await _context.Assets.Include(a => a.User).ToListAsync();
     }
 
     public async Task<Asset> GetAssetByIdAsync(int id)
     {
-        return await _context.Assets.FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
+        return await _context.Assets.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
     }
 
     public async Task<Asset> CreateAssetAsync(CreateAssetServiceRequest request)
@@ -39,7 +39,7 @@ public class AssetService(AppDbContext context) : IAssetService
         if (request.AssetNo != null) asset.AssetNo = request.AssetNo;
         if (request.Model != null) asset.Model = request.Model;
         if (request.Status != null) asset.Status = (AssetStatus)request.Status;
-        _context.Assets.Update(asset);
+        if (request.UserId != null) asset.UserId = request.UserId;
         await _context.SaveChangesAsync();
     }
 
