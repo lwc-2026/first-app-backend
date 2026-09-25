@@ -5,10 +5,8 @@ namespace Tests.Factories;
 
 public class UserFactory : Factory
 {
-    public AppUser Create(string? id = null,
-                          string? username = null,
-                          string? email = null,
-                          string? password = null)
+    public AppUser Create(string? id = null, string? username = null, string? email = null, string? password = null, 
+                            DateTime? createdAt = null, DateTime? updatedAt = null, bool? isDeleted = null, DateTime? deletedAt = null)
     {
         password ??= base.faker.Internet.Password();
         var hmac = new System.Security.Cryptography.HMACSHA512();
@@ -20,7 +18,11 @@ public class UserFactory : Factory
             username: username ?? base.faker.Internet.UserName(),
             email: email ?? base.faker.Internet.Email(),
             passwordHash: passwordHash,
-            passwordSalt: passwordSalt
+            passwordSalt: passwordSalt,
+            createdAt: createdAt ?? DateTime.UtcNow,
+            updatedAt: updatedAt ?? DateTime.UtcNow,
+            isDeleted: isDeleted ?? false,
+            deletedAt: deletedAt
         );
     }
     
