@@ -12,6 +12,11 @@ using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<SoftDeleteInterceptor>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -32,11 +37,12 @@ builder.Services.AddSwaggerGen(options =>
         [new OpenApiSecuritySchemeReference("bearer", document)] = []
     });
 });
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 {
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("SqlServerConnection")
     );
+    options.AddInterceptors(sp.GetRequiredService<SoftDeleteInterceptor>());
 });
 builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -45,9 +51,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
-builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"];
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"];
