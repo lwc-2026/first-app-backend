@@ -36,6 +36,8 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 options.AddInterceptors(sp.GetRequiredService<AuditTimestampInterceptor>());
             });
             services.AddScoped<IAssetService, AssetService>();
+            services.AddScoped<IUserContext, UserContext>();
+            services.AddScoped<IUsersService, UsersService>();
         });
     }
 }

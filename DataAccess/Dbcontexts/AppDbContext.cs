@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Asset> Assets { get; set; }
+    public DbSet<AssetHistory> AssetHistories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
