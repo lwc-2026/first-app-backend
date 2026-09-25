@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IHealthCheckService, HealthCheckService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
 
