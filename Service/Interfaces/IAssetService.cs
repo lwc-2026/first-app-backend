@@ -13,6 +13,6 @@ public interface IAssetService
     public Task<Asset> CreateAssetAsync(CreateAssetServiceRequest request);
     public Task UpdateAssetAsync(UpdateAssetServiceRequest request);
     public Task DeleteAssetAsync(int id);
-    public Task AssignAssetAsync(AssignAssetServiceRequest request);
-    public Task ReturnAssetAsync(ReturnAssetServiceRequest request);
+    public Task AssignAssetAsync(AssignAssetServiceRequest request, string userId);
+    public Task ReturnAssetAsync(ReturnAssetServiceRequest request, string userId);
 }

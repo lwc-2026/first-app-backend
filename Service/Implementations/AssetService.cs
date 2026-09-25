@@ -71,7 +71,7 @@ public class AssetService(AppDbContext context) : IAssetService
         return await _context.Users.AnyAsync(u => u.Id == userId);
     }
 
-    public async Task AssignAssetAsync(AssignAssetServiceRequest request)
+    public async Task AssignAssetAsync(AssignAssetServiceRequest request, string requestUserId)
     {
         Asset asset = await GetAssetByIdAsync(request.AssetId);
         if(!await this.UserExistsAsync(request.UserId))
@@ -79,10 +79,18 @@ public class AssetService(AppDbContext context) : IAssetService
             throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
         }
         asset.UserId = request.UserId;
+        AssetHistory history = new AssetHistory
+        {
+            AssetId = asset.Id,
+            Description = request.Description,
+            Action = AssetHistoryAction.Assigned,
+            CreatedByUserId = requestUserId
+        };
+        _context.AssetHistories.Add(history);
         await _context.SaveChangesAsync();
     }
 
-    public async Task ReturnAssetAsync(ReturnAssetServiceRequest request)
+    public async Task ReturnAssetAsync(ReturnAssetServiceRequest request, string requestUserId)
     {
         Asset asset = await GetAssetByIdAsync(request.AssetId);
         if(asset.UserId != request.UserId)
@@ -90,6 +98,14 @@ public class AssetService(AppDbContext context) : IAssetService
             throw new InvalidOperationException($"Asset with ID {request.AssetId} is not assigned to user with ID {request.UserId}.");
         }
         asset.UserId = null;
+        AssetHistory history = new AssetHistory
+        {
+            AssetId = asset.Id,
+            Description = request.Description,
+            Action = AssetHistoryAction.Returned,
+            CreatedByUserId = requestUserId
+        };
+        _context.AssetHistories.Add(history);
         await _context.SaveChangesAsync();
     }
 }
