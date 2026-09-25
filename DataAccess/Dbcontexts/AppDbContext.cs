@@ -15,14 +15,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // use IignoreQueryFilters in EF Core to automatically filter out soft-deleted entities
         modelBuilder.Entity<AppUser>()
-            .HasQueryFilter(u => u.DeletedAt == null);
-        modelBuilder.Entity<RefreshToken>()
-            .HasQueryFilter(rt => rt.DeletedAt == null);
-        modelBuilder.Entity<AuditLog>()
-            .HasQueryFilter(al => al.DeletedAt == null);
+            .HasQueryFilter(u => !u.IsDeleted);
         modelBuilder.Entity<Asset>()
-            .HasQueryFilter(a => a.DeletedAt == null);
+            .HasQueryFilter(a => !a.IsDeleted);
         base.OnModelCreating(modelBuilder);
     }
 
