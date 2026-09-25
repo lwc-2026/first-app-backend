@@ -18,7 +18,6 @@ public class AssetServiceTest(DatabaseFixture fixture)
 {
     private readonly DatabaseFixture _fixture = fixture;
     private readonly AssetFactory _assetFactory = new(fixture.TimeProvider);
-    private readonly IAssetService? _assetService = fixture.Services.GetService<IAssetService>();
 
     [Fact]
     public async Task Can_GetAssets()
@@ -26,6 +25,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         var asset = _assetFactory.Create();
         using var scope = _fixture.Services.CreateScope();
         AppDbContext context = scope.ServiceProvider.GetService<AppDbContext>()!;
+        IAssetService _assetService = scope.ServiceProvider.GetService<IAssetService>()!;
         context.Assets.Add(asset);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
@@ -43,6 +43,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         Asset asset = _assetFactory.Create();
         using var scope = _fixture.Services.CreateScope();
         AppDbContext context = scope.ServiceProvider.GetService<AppDbContext>()!;
+        IAssetService _assetService = scope.ServiceProvider.GetService<IAssetService>()!;
         context.Assets.Add(asset);
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
@@ -58,10 +59,11 @@ public class AssetServiceTest(DatabaseFixture fixture)
     public async Task Can_CreateAsset()
     {
         Asset asset = _assetFactory.Create();
+        using var scope = _fixture.Services.CreateScope();
+        IAssetService _assetService = scope.ServiceProvider.GetService<IAssetService>()!;
         var createRequest = new CreateAssetServiceRequest(asset.SerialNo, asset.AssetNo, asset.Model, asset.Status);
         Asset createdAsset = await _assetService!.CreateAssetAsync(createRequest);
 
-        using var scope = _fixture.Services.CreateScope();
         AppDbContext context = scope.ServiceProvider.GetService<AppDbContext>()!;
         context.ChangeTracker.Clear();
         var fetchedAsset = await context.Assets.FindAsync(createdAsset.Id);
@@ -81,6 +83,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         context.ChangeTracker.Clear();
 
         var updateRequest = new UpdateAssetServiceRequest(asset.Id, "UpdatedSerialNo", "UpdatedAssetNo", "UpdatedModel", AssetStatus.InUse);
+        IAssetService _assetService = scope.ServiceProvider.GetService<IAssetService>()!;
         await _assetService!.UpdateAssetAsync(updateRequest);
 
         context.ChangeTracker.Clear();
@@ -105,6 +108,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
+        IAssetService _assetService = scope.ServiceProvider.GetService<IAssetService>()!;
         await _assetService!.DeleteAssetAsync(asset.Id);
 
         context.ChangeTracker.Clear();
