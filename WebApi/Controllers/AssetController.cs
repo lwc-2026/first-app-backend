@@ -73,9 +73,8 @@ namespace WebApi.Controllers
                 return Unauthorized();
             }
             AssignAssetServiceRequest serviceRequest = new AssignAssetServiceRequest(
-                id,
                 request.UserId,
-                request.AssetId,
+                id,
                 request.Description
             );
             await _assetService.AssignAssetAsync(serviceRequest, _userContext.UserId);
@@ -90,9 +89,8 @@ namespace WebApi.Controllers
                 return Unauthorized();
             }
             ReturnAssetServiceRequest serviceRequest = new ReturnAssetServiceRequest(
-                id,
                 request.UserId,
-                request.AssetId,
+                id,
                 request.Description
             );
             await _assetService.ReturnAssetAsync(serviceRequest, _userContext.UserId);
