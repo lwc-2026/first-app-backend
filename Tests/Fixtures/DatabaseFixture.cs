@@ -17,6 +17,7 @@ public class DatabaseFixture : IAsyncLifetime
     public IServiceProvider Services => _webApplicationFactory.Services;
     public IServiceScope CreateScope() => Services.CreateScope();
     public HttpClient CreateClient() => _webApplicationFactory.CreateClient();
+    public TimeProvider TimeProvider => Services.GetRequiredService<TimeProvider>();
 
     // constructor
     public DatabaseFixture()

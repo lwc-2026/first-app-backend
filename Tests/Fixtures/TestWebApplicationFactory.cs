@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Service.Implementations;
+using Service.Interfaces;
 
 namespace Tests.Fixtures;
 
@@ -24,7 +26,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             }
 
             // add testing registration
-
+            services.AddSingleton<TimeProvider>(TimeProvider.System);
             services.AddScoped<SoftDeleteInterceptor>();
             services.AddScoped<AuditTimestampInterceptor>();
             services.AddDbContext<AppDbContext>((sp, options) =>
@@ -33,6 +35,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 options.AddInterceptors(sp.GetRequiredService<SoftDeleteInterceptor>());
                 options.AddInterceptors(sp.GetRequiredService<AuditTimestampInterceptor>());
             });
+            services.AddScoped<IAssetService, AssetService>();
         });
     }
 }
