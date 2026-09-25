@@ -71,41 +71,71 @@ public class AssetService(AppDbContext context) : IAssetService
         return await _context.Users.AnyAsync(u => u.Id == userId);
     }
 
-    public async Task AssignAssetAsync(AssignAssetServiceRequest request, string requestUserId)
+    public async Task AssignAssetAsync(AssignAssetServiceRequest request, string requestUserId, bool forceFailure = false)
     {
-        Asset asset = await GetAssetByIdAsync(request.AssetId);
-        if(!await this.UserExistsAsync(request.UserId))
+        // create database transaction
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
         {
-            throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
+            Asset asset = await GetAssetByIdAsync(request.AssetId);
+            if(!await this.UserExistsAsync(request.UserId))
+            {
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
+            }
+            asset.UserId = request.UserId;
+            AssetHistory history = new AssetHistory
+            {
+                AssetId = asset.Id,
+                Description = request.Description,
+                Action = AssetHistoryAction.Assigned,
+                CreatedByUserId = requestUserId
+            };
+            _context.AssetHistories.Add(history);
+            await _context.SaveChangesAsync();
+
+            if (forceFailure)
+            {
+                throw new InvalidOperationException("Forced failure after assigning asset.");
+            }
+
+            await transaction.CommitAsync();
+        }catch(Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
-        asset.UserId = request.UserId;
-        AssetHistory history = new AssetHistory
-        {
-            AssetId = asset.Id,
-            Description = request.Description,
-            Action = AssetHistoryAction.Assigned,
-            CreatedByUserId = requestUserId
-        };
-        _context.AssetHistories.Add(history);
-        await _context.SaveChangesAsync();
+
     }
 
     public async Task ReturnAssetAsync(ReturnAssetServiceRequest request, string requestUserId)
     {
-        Asset asset = await GetAssetByIdAsync(request.AssetId);
-        if(asset.UserId != request.UserId)
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
         {
-            throw new InvalidOperationException($"Asset with ID {request.AssetId} is not assigned to user with ID {request.UserId}.");
+            Asset asset = await GetAssetByIdAsync(request.AssetId);
+            if(asset.UserId != request.UserId)
+            {
+                throw new InvalidOperationException($"Asset with ID {request.AssetId} is not assigned to user with ID {request.UserId}.");
+            }
+            asset.UserId = null;
+            AssetHistory history = new AssetHistory
+            {
+                AssetId = asset.Id,
+                Description = request.Description,
+                Action = AssetHistoryAction.Returned,
+                CreatedByUserId = requestUserId
+            };
+            _context.AssetHistories.Add(history);
+            await _context.SaveChangesAsync();            
+        }catch(Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
-        asset.UserId = null;
-        AssetHistory history = new AssetHistory
-        {
-            AssetId = asset.Id,
-            Description = request.Description,
-            Action = AssetHistoryAction.Returned,
-            CreatedByUserId = requestUserId
-        };
-        _context.AssetHistories.Add(history);
-        await _context.SaveChangesAsync();
+
+        await transaction.CommitAsync();
     }
 }
