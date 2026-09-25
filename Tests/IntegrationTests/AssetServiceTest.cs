@@ -169,4 +169,83 @@ public class AssetServiceTest(DatabaseFixture fixture)
         await act.Should().ThrowAsync<KeyNotFoundException>()
             .WithMessage($"User with ID {nonExistentUserId} not found.");
     }
+
+    [Fact]
+    public async Task Can_Create_History_When_Submit_Return_Asset()
+    {
+        Asset asset = _assetFactory.Create();
+        AppUser user = _userFactory.Create();
+        asset.UserId = user.Id;
+        using var scope = _fixture.Services.CreateScope();
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        IAssetService _assetService = scope.ServiceProvider.GetRequiredService<IAssetService>();
+        context.Users.Add(user);
+        context.Assets.Add(asset);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var returnRequest = new ReturnAssetServiceRequest(user.Id, asset.Id, "Returning asset");
+        await _assetService!.ReturnAssetAsync(returnRequest, user.Id);
+
+        context.ChangeTracker.Clear();
+        var returnedAsset = await context.Assets.FirstOrDefaultAsync(a => a.Id == asset.Id);
+        returnedAsset.Should().NotBeNull();
+        returnedAsset.UserId.Should().BeNull();
+
+        // assert asset history exists
+        var assetHistory = await context.AssetHistories.FirstOrDefaultAsync(h => h.AssetId == asset.Id);
+        assetHistory.Should().NotBeNull();
+        assetHistory.Action.Should().Be(AssetHistoryAction.Returned);
+        assetHistory.CreatedByUserId.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public async Task Can_Create_History_When_Submit_Assign_Asset()
+    {
+        Asset asset = _assetFactory.Create();
+        AppUser user = _userFactory.Create();
+        using var scope = _fixture.Services.CreateScope();
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        IAssetService _assetService = scope.ServiceProvider.GetRequiredService<IAssetService>();
+        context.Users.Add(user);
+        context.Assets.Add(asset);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var assignRequest = new AssignAssetServiceRequest(user.Id, asset.Id, "Assigning asset");
+        await _assetService!.AssignAssetAsync(assignRequest, user.Id);
+
+        context.ChangeTracker.Clear();
+        var assignedAsset = await context.Assets.FirstOrDefaultAsync(a => a.Id == asset.Id);
+        assignedAsset.Should().NotBeNull();
+        assignedAsset.UserId.Should().Be(user.Id);
+
+        // assert asset history exists
+        var assetHistory = await context.AssetHistories.FirstOrDefaultAsync(h => h.AssetId == asset.Id);
+        assetHistory.Should().NotBeNull();
+        assetHistory.Action.Should().Be(AssetHistoryAction.Assigned);
+        assetHistory.CreatedByUserId.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public async Task AssignAsset_Should_ForceFailure_When_Requested()
+    {
+        Asset asset = _assetFactory.Create();
+        AppUser user = _userFactory.Create();
+        using var scope = _fixture.Services.CreateScope();
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        IAssetService _assetService = scope.ServiceProvider.GetRequiredService<IAssetService>();
+        context.Users.Add(user);
+        context.Assets.Add(asset);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        var assignRequest = new AssignAssetServiceRequest(user.Id, asset.Id, "Assigning asset");
+        Func<Task> act = async () => await _assetService!.AssignAssetAsync(assignRequest, user.Id, forceFailure: true);
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("Forced failure after assigning asset.");
+
+        // check no history generated
+        var assetHistory = await context.AssetHistories.FirstOrDefaultAsync(h => h.AssetId == asset.Id);
+        assetHistory.Should().BeNull();
+    }
 }
