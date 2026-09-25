@@ -4,11 +4,12 @@ using DataAccess.Entities;
 
 namespace Service.Requests;
 
-public class UpdateAssetServiceRequest(int id, string? serialNo, string? assetNo, string? model, AssetStatus? status)
+public class UpdateAssetServiceRequest(int id, string? serialNo, string? assetNo, string? model, AssetStatus? status, string? userId = null)
 {
     public int Id { get; set; } = id;
     public string? SerialNo { get; set; } = serialNo;
     public string? AssetNo { get; set; } = assetNo;
     public string? Model { get; set; } = model;
     public AssetStatus? Status { get; set; } = status;
+    public string? UserId { get; set; } = userId;
 }

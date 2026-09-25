@@ -4,7 +4,7 @@ using DataAccess.Entities;
 
 namespace Service.Requests;
 
-public class CreateAssetServiceRequest(string serialNo, string assetNo, string model, AssetStatus status)
+public class CreateAssetServiceRequest(string serialNo, string assetNo, string model, AssetStatus status, string? userId = null)
  : ServiceRequest<Asset>
 {
     // Add properties for the asset that need to be set during creation
@@ -12,6 +12,7 @@ public class CreateAssetServiceRequest(string serialNo, string assetNo, string m
     public string AssetNo { get; set; } = assetNo;
     public string Model { get; set; } = model;
     public AssetStatus Status { get; set; } = status;
+    public string? UserId { get; set; } = userId;
 
     public override Asset ToEntity()
     {
@@ -21,7 +22,8 @@ public class CreateAssetServiceRequest(string serialNo, string assetNo, string m
             SerialNo = this.SerialNo,
             AssetNo = this.AssetNo,
             Model = this.Model,
-            Status = this.Status
+            Status = this.Status,
+            UserId = this.UserId
         };
         return asset;
     }
