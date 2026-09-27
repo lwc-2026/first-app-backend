@@ -10,6 +10,7 @@ using DataAccess.Seeder;
 using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,19 @@ builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
 builder.Services.AddSingleton<AuditTimestampInterceptor>();
+
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "logs/app-.log",                       // Generates files like 'logs/app-20260927.log'
+        rollingInterval: RollingInterval.Day,         // Creates a new file every day
+        retainedFileCountLimit: 31,                   // Retains 31 days of logs
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+    ).CreateLogger();
+    
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
