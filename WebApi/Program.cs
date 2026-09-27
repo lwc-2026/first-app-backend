@@ -20,6 +20,7 @@ builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
+builder.Services.AddSingleton<AuditTimestampInterceptor>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -45,7 +46,10 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("SqlServerConnection")
     );
-    options.AddInterceptors(sp.GetRequiredService<SoftDeleteInterceptor>());
+    options.AddInterceptors(
+        sp.GetRequiredService<SoftDeleteInterceptor>(),
+        sp.GetRequiredService<AuditTimestampInterceptor>()
+    );
 });
 builder.Services.AddCors();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
