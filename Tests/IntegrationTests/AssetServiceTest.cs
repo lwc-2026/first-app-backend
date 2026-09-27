@@ -11,6 +11,7 @@ using Service.Requests;
 using Tests.Factories;
 using Tests.Fixtures;
 using Xunit;
+using BusinessModel.DTOs;
 
 namespace Tests.IntegrationTests;
 
@@ -36,7 +37,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         context.ChangeTracker.Clear();
 
         Assert.IsType<Asset>(asset);
-        IEnumerable<Asset> assets = await _assetService!.GetAssetsAsync();
+        IEnumerable<AssetDto> assets = await _assetService!.GetAssetsAsync();
 
         assets.Should().NotBeNull();
         assets.Should().Contain(a => a.Id == asset.Id);
@@ -58,7 +59,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         context.ChangeTracker.Clear();
 
         Assert.IsType<Asset>(asset);
-        Asset fetchedAsset = await _assetService!.GetAssetByIdAsync(asset.Id);
+        AssetDto fetchedAsset = await _assetService!.GetAssetByIdAsync(asset.Id);
 
         fetchedAsset.Should().NotBeNull();
         fetchedAsset.Id.Should().Be(asset.Id);
@@ -72,7 +73,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         IAssetService _assetService = scope.ServiceProvider.GetRequiredService<IAssetService>();
         AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var createRequest = new CreateAssetServiceRequest(asset.SerialNo, asset.AssetNo, asset.Model, asset.Status);
-        Asset createdAsset = await _assetService!.CreateAssetAsync(createRequest);
+        AssetDto createdAsset = await _assetService!.CreateAssetAsync(createRequest);
 
         context.ChangeTracker.Clear();
         var fetchedAsset = await context.Assets.FindAsync(createdAsset.Id);
