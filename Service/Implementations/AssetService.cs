@@ -116,10 +116,6 @@ public class AssetService(AppDbContext context) : IAssetService
         try
         {
             Asset asset = await GetAssetByIdAsync(request.AssetId);
-            if(asset.UserId != request.UserId)
-            {
-                throw new InvalidOperationException($"Asset with ID {request.AssetId} is not assigned to user with ID {request.UserId}.");
-            }
             asset.UserId = null;
             AssetHistory history = new AssetHistory
             {

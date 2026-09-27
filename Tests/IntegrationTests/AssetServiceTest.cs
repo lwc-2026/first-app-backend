@@ -184,7 +184,7 @@ public class AssetServiceTest(DatabaseFixture fixture)
         await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        var returnRequest = new ReturnAssetServiceRequest(user.Id, asset.Id, "Returning asset");
+        var returnRequest = new ReturnAssetServiceRequest(asset.Id, "Returning asset");
         await _assetService!.ReturnAssetAsync(returnRequest, user.Id);
 
         context.ChangeTracker.Clear();

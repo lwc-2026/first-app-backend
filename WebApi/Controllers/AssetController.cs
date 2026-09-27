@@ -89,7 +89,6 @@ namespace WebApi.Controllers
                 return Unauthorized();
             }
             ReturnAssetServiceRequest serviceRequest = new ReturnAssetServiceRequest(
-                request.UserId,
                 id,
                 request.Description
             );
