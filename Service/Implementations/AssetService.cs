@@ -7,28 +7,66 @@ using Microsoft.EntityFrameworkCore;
 using Service.Interfaces;
 using DataAccess.Dbcontexts;
 using Service.Requests;
+using BusinessModel.DTOs;
 
 namespace Service.Implementations;
 
 public class AssetService(AppDbContext context) : IAssetService
 {
     private readonly AppDbContext _context = context;
-    public async Task<IEnumerable<Asset>> GetAssetsAsync()
+    public async Task<IEnumerable<AssetDto>> GetAssetsAsync()
     {
         return await _context.Assets
             .AsNoTracking()
             .Include(a => a.User)
+            .Select(a => new AssetDto
+            {
+                Id = a.Id,
+                SerialNo = a.SerialNo,
+                AssetNo = a.AssetNo,
+                Model = a.Model,
+                Status = a.Status,
+                User = a.User != null ? new UserDto
+                {
+                    Id = a.User.Id,
+                    Username = a.User.Username,
+                    Email = a.User.Email
+                } : null,
+                CreatedAt = a.CreatedAt,
+                UpdatedAt = a.UpdatedAt,
+                DeletedAt = a.DeletedAt,
+                IsDeleted = a.IsDeleted
+            })
             .ToListAsync();
     }
 
-    public async Task<Asset> GetAssetByIdAsync(int id)
+    public async Task<AssetDto> GetAssetByIdAsync(int id)
     {
         return await _context.Assets
             .Include(a => a.User)
-            .FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
+            .Select(a => new AssetDto
+            {
+                Id = a.Id,
+                SerialNo = a.SerialNo,
+                AssetNo = a.AssetNo,
+                Model = a.Model,
+                Status = a.Status,
+                User = a.User != null ? new UserDto
+                {
+                    Id = a.User.Id,
+                    Username = a.User.Username,
+                    Email = a.User.Email
+                } : null,
+                CreatedAt = a.CreatedAt,
+                UpdatedAt = a.UpdatedAt,
+                DeletedAt = a.DeletedAt,
+                IsDeleted = a.IsDeleted
+            })
+            .FirstOrDefaultAsync(a => a.Id == id)
+             ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
     }
 
-    public async Task<Asset> CreateAssetAsync(CreateAssetServiceRequest request)
+    public async Task<AssetDto> CreateAssetAsync(CreateAssetServiceRequest request)
     {
         Asset asset = request.ToEntity();
         if (asset.UserId != null && !await this.UserExistsAsync(asset.UserId))
@@ -37,12 +75,29 @@ public class AssetService(AppDbContext context) : IAssetService
         }
         _context.Assets.Add(asset);
         await _context.SaveChangesAsync();
-        return asset;
+        return new AssetDto
+        {
+            Id = asset.Id,
+            SerialNo = asset.SerialNo,
+            AssetNo = asset.AssetNo,
+            Model = asset.Model,
+            Status = asset.Status,
+            User = asset.User != null ? new UserDto
+            {
+                Id = asset.User.Id,
+                Username = asset.User.Username,
+                Email = asset.User.Email
+            } : null,
+            CreatedAt = asset.CreatedAt,
+            UpdatedAt = asset.UpdatedAt,
+            DeletedAt = asset.DeletedAt,
+            IsDeleted = asset.IsDeleted
+        };
     }
 
     public async Task UpdateAssetAsync(UpdateAssetServiceRequest request)
     {
-        Asset asset = await GetAssetByIdAsync(request.Id);
+        Asset asset = await GetAssetById(request.Id);
         // compare and update only the fields that are not null
         if (request.SerialNo != null) asset.SerialNo = request.SerialNo;
         if (request.AssetNo != null) asset.AssetNo = request.AssetNo;
@@ -61,7 +116,7 @@ public class AssetService(AppDbContext context) : IAssetService
 
     public async Task DeleteAssetAsync(int id)
     {
-        Asset asset = await GetAssetByIdAsync(id);
+        Asset asset = await GetAssetById(id);
         _context.Assets.Remove(asset);
         await _context.SaveChangesAsync();
     }
@@ -79,7 +134,7 @@ public class AssetService(AppDbContext context) : IAssetService
 
         try
         {
-            Asset asset = await GetAssetByIdAsync(request.AssetId);
+            Asset asset = await GetAssetById(request.AssetId);
             if(!await this.UserExistsAsync(request.UserId))
             {
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found.");    
@@ -115,7 +170,7 @@ public class AssetService(AppDbContext context) : IAssetService
 
         try
         {
-            Asset asset = await GetAssetByIdAsync(request.AssetId);
+            Asset asset = await GetAssetById(request.AssetId);
             asset.UserId = null;
             AssetHistory history = new AssetHistory
             {
@@ -133,5 +188,10 @@ public class AssetService(AppDbContext context) : IAssetService
         }
 
         await transaction.CommitAsync();
+    }
+
+    private async Task<Asset> GetAssetById(int id)
+    {
+        return await _context.Assets.FirstOrDefaultAsync(a => a.Id == id) ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
     }
 }
