@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DataAccess.Seeder;
 using Microsoft.OpenApi;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +24,11 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<SoftDeleteInterceptor>();
 builder.Services.AddSingleton<AuditTimestampInterceptor>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 // builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
