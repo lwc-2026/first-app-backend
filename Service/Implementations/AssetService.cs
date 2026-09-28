@@ -145,7 +145,8 @@ public class AssetService(AppDbContext context) : IAssetService
                 AssetId = asset.Id,
                 Description = request.Description,
                 Action = AssetHistoryAction.Assigned,
-                CreatedByUserId = requestUserId
+                CreatedByUserId = requestUserId,
+                AssignedUserId = request.UserId
             };
             _context.AssetHistories.Add(history);
             await _context.SaveChangesAsync();
@@ -177,7 +178,8 @@ public class AssetService(AppDbContext context) : IAssetService
                 AssetId = asset.Id,
                 Description = request.Description,
                 Action = AssetHistoryAction.Returned,
-                CreatedByUserId = requestUserId
+                CreatedByUserId = requestUserId,
+                AssignedUserId = null
             };
             _context.AssetHistories.Add(history);
             await _context.SaveChangesAsync();            
