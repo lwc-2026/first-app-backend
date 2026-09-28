@@ -2,9 +2,12 @@ using System;
 using BusinessModel.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DataAccess.Configurations;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Entities;
 
+[EntityTypeConfiguration(typeof(AssetConfiguration))]
 public class Asset : BaseEntity, ISoftDelete
 {
     [Key]
@@ -22,4 +25,5 @@ public class Asset : BaseEntity, ISoftDelete
     public AppUser? User { get; set; }
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedAt { get; set; } = null;
+    public ICollection<AssetHistory> AssetHistories { get; set; } = [];
 }

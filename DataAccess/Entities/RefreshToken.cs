@@ -1,9 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DataAccess.Configurations;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Entities;
 
+[EntityTypeConfiguration(typeof(RefreshTokenConfiguration))]
 public class RefreshToken: BaseEntity
 {
     [Key]

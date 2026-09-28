@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using BusinessModel.DTOs;
+using DataAccess.Configurations;
 using Microsoft.EntityFrameworkCore;
 namespace DataAccess.Entities;
 
+[EntityTypeConfiguration(typeof(AppUserConfiguration))]
 public class AppUser : BaseEntity, ISoftDelete
 {
     [Key]
@@ -29,4 +31,6 @@ public class AppUser : BaseEntity, ISoftDelete
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedAt { get; set; } = null;
+    public ICollection<AssetHistory> CreatedAssetHistories { get; set; } = new List<AssetHistory>();
+    public ICollection<AssetHistory> AssignedAssetHistories { get; set; } = new List<AssetHistory>();
 }

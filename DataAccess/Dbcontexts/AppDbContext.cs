@@ -1,4 +1,5 @@
-﻿using DataAccess.Entities;
+﻿using DataAccess.Configurations;
+using DataAccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // use IignoreQueryFilters in EF Core to automatically filter out soft-deleted entities
-        modelBuilder.Entity<AppUser>()
-            .HasQueryFilter(u => !u.IsDeleted);
-        modelBuilder.Entity<Asset>()
-            .HasQueryFilter(a => !a.IsDeleted);
+
         base.OnModelCreating(modelBuilder);
     }
 
