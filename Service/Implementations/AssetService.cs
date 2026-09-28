@@ -28,24 +28,7 @@ public class AssetService(AppDbContext context) : IAssetService
     {
         return await _context.Assets
             .Include(a => a.User)
-            .Select(a => new AssetDto
-            {
-                Id = a.Id,
-                SerialNo = a.SerialNo,
-                AssetNo = a.AssetNo,
-                Model = a.Model,
-                Status = a.Status,
-                User = a.User != null ? new UserDto
-                {
-                    Id = a.User.Id,
-                    Username = a.User.Username,
-                    Email = a.User.Email
-                } : null,
-                CreatedAt = a.CreatedAt,
-                UpdatedAt = a.UpdatedAt,
-                DeletedAt = a.DeletedAt,
-                IsDeleted = a.IsDeleted
-            })
+            .Select(AssetProjection.ToSql)
             .FirstOrDefaultAsync(a => a.Id == id)
              ?? throw new KeyNotFoundException($"Asset with ID {id} not found.");
     }
