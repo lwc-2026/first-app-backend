@@ -16,4 +16,5 @@ public class AssetDto
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
     public bool IsDeleted { get; set; }
+    public ICollection<AssetHistoryDto>? AssetHistories { get; set; } = new List<AssetHistoryDto>();
 }

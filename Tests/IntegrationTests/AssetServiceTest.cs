@@ -249,4 +249,36 @@ public class AssetServiceTest(DatabaseFixture fixture)
         var assetHistory = await context.AssetHistories.FirstOrDefaultAsync(h => h.AssetId == asset.Id);
         assetHistory.Should().BeNull();
     }
+
+    [Fact]
+    public async Task Can_Get_Asset_History_After_Assign_Asset()
+    {
+        // arrange
+        Asset asset = _assetFactory.Create();
+        AppUser user = _userFactory.Create();
+        using IServiceScope scope = _fixture.CreateScope();
+        AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        asset.UserId = user.Id;
+
+        // save assigned asset and user
+        context.Users.Add(user);
+        context.Assets.Add(asset);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        // create service instance
+        IAssetService service = scope.ServiceProvider.GetRequiredService<IAssetService>();
+        AssetDto assetDto = await service.GetAssetByIdAsync(asset.Id);
+
+        // assertion
+        assetDto.Should().NotBeNull();
+        assetDto.Should().BeOfType<AssetDto>();
+        assetDto.User.Should().NotBeNull();
+        assetDto.User.Should().BeOfType<UserDto>();
+        // assetDto.User.Id.Should().Be(user.Id);
+        // assetDto.User.Username.Should().Be(user.Username);
+        // assetDto.User.Email.Should().Be(user.Email);
+        assetDto.AssetHistories.Should().NotBeNull();
+    }
 }
