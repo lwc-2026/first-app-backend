@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 using WebApi.Requests;
 using Service.Interfaces;
@@ -6,6 +7,7 @@ using Service.Requests;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("api/assets")]
     [ApiController]
     public class AssetController(IAssetService assetService, IUserContext userContext) : ControllerBase
