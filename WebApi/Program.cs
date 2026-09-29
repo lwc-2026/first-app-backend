@@ -94,11 +94,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtIssuer,
             ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret!)),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
 var app = builder.Build();
+
+var localZone = TimeZoneInfo.Local;
+Console.WriteLine($"ID: {localZone.Id}");
+Console.WriteLine($"Name: {localZone.DisplayName}");
+Console.WriteLine($"Current Time: {DateTime.Now}");
+Console.WriteLine($"UTC Offset: {localZone.GetUtcOffset(DateTime.Now)}");
 
 app.UseForwardedHeaders();
 
