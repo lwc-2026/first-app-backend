@@ -20,6 +20,20 @@ public class TestUserSeeder
                 PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("P@ssw0rd123")),
                 PasswordSalt = hmac.Key
             });
+            dbContext.Users.Add(new AppUser
+            {
+                Username = "admin",
+                Email = "admin@gmail.com",
+                PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("P@ssw0rd123")),
+                PasswordSalt = hmac.Key
+            });
+            dbContext.Users.Add(new AppUser
+            {
+                Username = "admin-2",
+                Email = "admin-2@gmail.com",
+                PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes("P@ssw0rd123")),
+                PasswordSalt = hmac.Key
+            });
             await dbContext.SaveChangesAsync();
         }
     }
